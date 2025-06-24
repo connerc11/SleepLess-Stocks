@@ -1,34 +1,12 @@
-import React, { useState } from 'react';
-import { deleteComment, updateComment } from '../api';
+// frontend/src/components/CommentItem.jsx
+import React from 'react';
 
-export default function CommentItem({ comment, currentUser }) {
-  const [editing, setEditing] = useState(false);
-  const [text, setText] = useState(comment.text);
-
-  const handleDelete = async () => {
-    await deleteComment(comment.id);
-    window.location.reload();
-  };
-
-  const handleUpdate = async () => {
-    const updated = await updateComment(comment.id, text);
-    setEditing(false);
-  };
-
+function CommentItem({ comment }) {
   return (
-    <div>
-      <p><strong>{comment.author}</strong>: {editing ? (
-        <>
-          <input value={text} onChange={(e) => setText(e.target.value)} />
-          <button onClick={handleUpdate}>Save</button>
-        </>
-      ) : comment.text}</p>
-      {currentUser === comment.author && (
-        <>
-          <button onClick={() => setEditing(!editing)}>Edit</button>
-          <button onClick={handleDelete}>Delete</button>
-        </>
-      )}
+    <div className="bg-gray-100 p-2 rounded text-sm">
+      {comment.text}
     </div>
   );
 }
+
+export default CommentItem;

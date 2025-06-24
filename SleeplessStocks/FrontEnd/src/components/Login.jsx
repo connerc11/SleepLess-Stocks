@@ -1,43 +1,53 @@
+// frontend/src/components/Login.jsx
 import React, { useState } from 'react';
-import { login } from '../api';
+import api from '../api';
 
-export default function Login({ onLogin }) {
+function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+    setError('');
     try {
-      const data = await login(username, password);
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('username', data.username);
-      onLogin(data.username);
+      const response = await api.post('/auth/login', { username, password });
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      // You can add redirect or state update here on successful login
+      alert('Login successful!');
     } catch (err) {
-      setError('Invalid username or password');
+      setError('Invalid credentials');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 300, margin: 'auto', marginTop: 50 }}>
+    <div style={{ maxWidth: '300px', margin: 'auto', paddingTop: '50px' }}>
       <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-required
-/><br />
-<input
-placeholder="Password"
-type="password"
-value={password}
-onChange={(e) => setPassword(e.target.value)}
-required
-/><br />
-<button type="submit">Login</button>
-</form>
-);
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
+        />
+        <button type="submit" style={{ width: '100%', padding: '8px' }}>
+          Login
+        </button>
+      </form>
+      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+    </div>
+  );
 }
 
+export default Login;

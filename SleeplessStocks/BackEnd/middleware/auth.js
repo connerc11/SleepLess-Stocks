@@ -1,18 +1,22 @@
+const express = require('express');
+const router = express.Router();
 const jwt = require('jsonwebtoken');
+const users = require('../users'); // your user store
 require('dotenv').config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token provided' });
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
-    req.user = user;
-    next();
-  });
-}
+  const user = users.find(u => u.username === username && u.password === password);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
 
-module.exports = authenticateToken;
+  const token = jwt.sign({ username: user.username, id: user.id }, JWT_SECRET, { expiresIn: '1h' });
+
+  res.json({ token });
+});
+
+module.exports = router;

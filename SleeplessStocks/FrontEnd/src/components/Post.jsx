@@ -1,37 +1,48 @@
-
-import React, { useEffect, useState } from 'react';
-import { fetchComments, createComment } from '../api';
+// frontend/src/components/Post.jsx
+import React, { useState } from 'react';
 import CommentItem from './CommentItem';
 
-export default function Post({ postId, currentUser }) {
-  const [comments, setComments] = useState([]);
-  const [text, setText] = useState('');
+function Post({ post, onLike, onAddComment }) {
+  const [commentText, setCommentText] = useState('');
 
-  useEffect(() => {
-    fetchComments(postId).then(setComments);
-  }, [postId]);
-
-  const handleComment = async () => {
-    if (!text) return;
-    const newComment = await createComment(postId, text);
-    setComments([...comments, newComment]);
-    setText('');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (commentText.trim()) {
+      onAddComment(commentText);
+      setCommentText('');
+    }
   };
 
   return (
-    <div style={{ margin: '2em 0' }}>
-      <h3>Post {postId}</h3>
-      <textarea
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Add a comment"
-      /><br />
-      <button onClick={handleComment}>Comment</button>
-      <div>
-        {comments.map((c) => (
-          <CommentItem key={c.id} comment={c} currentUser={currentUser} />
-        ))}
+    <div className="border rounded p-4 shadow space-y-2">
+      <h2 className="text-xl font-semibold">{post.title}</h2>
+      <p>{post.content}</p>
+
+      <button onClick={onLike} className="text-red-500 hover:scale-110 transition">
+        ❤️ {post.likes.length}
+      </button>
+
+      <div className="mt-2">
+        <form onSubmit={handleSubmit}>
+          <input
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            className="border p-1 mr-2"
+            placeholder="Write a comment..."
+          />
+          <button type="submit" className="bg-blue-500 text-white px-2 py-1 rounded">
+            Comment
+          </button>
+        </form>
+
+        <div className="mt-2 space-y-1">
+          {post.comments.map((c, i) => (
+            <CommentItem key={i} comment={c} />
+          ))}
+        </div>
       </div>
     </div>
   );
 }
+
+export default Post;

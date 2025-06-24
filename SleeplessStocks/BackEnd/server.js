@@ -1,22 +1,24 @@
+// backend/server.js
 const express = require('express');
 const cors = require('cors');
-const authRoutes = require('./routes/auth');
-const commentRoutes = require('./routes/comments');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const postsRoute = require('./routes/posts');
+const commentsRoute = require('./routes/comments');
+const authRoute = require('./routes/auth');
 
+dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/auth', authRoutes);
-app.use('/comments', commentRoutes);
+app.use('/posts', postsRoute);
+app.use('/comments', commentsRoute);
+app.use('/auth', authRoute);
 
 app.get('/', (req, res) => {
-  res.send('API is running');
+  res.send('API Running...');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
