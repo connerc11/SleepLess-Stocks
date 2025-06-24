@@ -1,7 +1,7 @@
 // backend/routes/posts.js
 const express = require('express');
 const router = express.Router();
-const { posts } = require('../data');
+const { posts } = require('../../FrontEnd/data');
 const auth = require('../middleware/auth');
 
 // Get all posts

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import api from '../api';
 import { useNavigate } from 'react-router-dom';
+import api from '../api';
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -10,14 +10,12 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await api.post('/auth/login', { username, password });
       const { token } = response.data;
       localStorage.setItem('token', token);
 
-      // Redirect to blog homepage after login
-      navigate('/blog'); 
+      navigate('/blog');  // Redirect here
     } catch (err) {
       setError('Invalid credentials');
     }
@@ -40,7 +38,7 @@ function Login() {
         required
       />
       <button type="submit">Login</button>
-      {error && <p style={{color: 'red'}}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </form>
   );
 }

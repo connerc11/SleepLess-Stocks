@@ -1,48 +1,59 @@
-// frontend/src/components/Post.jsx
-import React, { useState } from 'react';
-import CommentItem from './CommentItem';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import API_CONFIG from '../API_CONFIG';
+import './Post.css'; // Optional: styling
 
-function Post({ post, onLike, onAddComment }) {
-  const [commentText, setCommentText] = useState('');
+const Post = ({ id, title, content, ticker }) => {
+  const [liked, setLiked] = useState(false);
+  const [price, setPrice] = useState(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (commentText.trim()) {
-      onAddComment(commentText);
-      setCommentText('');
-    }
+  useEffect(() => {
+    if (!ticker) return;
+
+    const fetchPrice = async () => {
+      try {
+        const res = await fetch(`https://financialmodelingprep.com/api/v3/quote/${ticker}?apikey=${API_CONFIG.FMP_API_KEY}`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setPrice(data[0].price);
+        }
+      } catch (err) {
+        console.error('Failed to fetch stock price:', err);
+      }
+    };
+
+    fetchPrice();
+  }, [ticker]);
+
+  const handleLike = () => {
+    setLiked(!liked);
+    // Optionally send like info to backend
+  };
+
+  const handleComment = () => {
+    navigate(`/comments/${id}`);
   };
 
   return (
-    <div className="border rounded p-4 shadow space-y-2">
-      <h2 className="text-xl font-semibold">{post.title}</h2>
-      <p>{post.content}</p>
+    <div className="post-card">
+      <h2>{title}</h2>
+      <p>{content}</p>
 
-      <button onClick={onLike} className="text-red-500 hover:scale-110 transition">
-        ❤️ {post.likes.length}
-      </button>
+      {ticker && (
+        <p style={{ fontWeight: 'bold', color: '#2a9d8f' }}>
+          {ticker} Price: {price ? `$${price.toFixed(2)}` : 'Loading...'}
+        </p>
+      )}
 
-      <div className="mt-2">
-        <form onSubmit={handleSubmit}>
-          <input
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            className="border p-1 mr-2"
-            placeholder="Write a comment..."
-          />
-          <button type="submit" className="bg-blue-500 text-white px-2 py-1 rounded">
-            Comment
-          </button>
-        </form>
-
-        <div className="mt-2 space-y-1">
-          {post.comments.map((c, i) => (
-            <CommentItem key={i} comment={c} />
-          ))}
-        </div>
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <button onClick={handleLike} style={{ fontSize: '1.2rem' }}>
+          {liked ? '💖' : '🤍'} Like
+        </button>
+        <button onClick={handleComment}>💬 Comment</button>
       </div>
     </div>
   );
-}
+};
 
 export default Post;

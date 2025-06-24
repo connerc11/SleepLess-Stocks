@@ -1,75 +1,83 @@
-// frontend/src/components/Blog.jsx
-import React, { useEffect, useState } from 'react';
-import Post from './Post';
-import api from '../api';
+// src/components/Blog.jsx
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import posts from '../../data';
 
-function Blog() {
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    // Fetch all posts on component mount
-    const fetchPosts = async () => {
-      try {
-        const response = await api.get('/posts'); // Example route
-        setPosts(response.data);
-      } catch (err) {
-        console.error('Failed to fetch posts:', err);
-      }
-    };
-
-    fetchPosts();
-  }, []);
-
-  // Handle like toggling
-  const toggleLike = async (postId) => {
-    try {
-      const response = await api.post(`/posts/${postId}/like`);
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId ? { ...post, likes: response.data.likes } : post
-        )
-      );
-    } catch (err) {
-      console.error('Error toggling like:', err);
-    }
+const Blog = () => {
+  const navigate = useNavigate();
+  const [favorites, setFavorites] = useState({});
+  
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
   };
 
-  // Add a comment to a post
-  const addComment = async (postId, commentText) => {
-    try {
-      const response = await api.post(`/comments/${postId}`, {
-        text: commentText,
-      });
+  const toggleFavorite = (postId) => {
+    setFavorites((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
 
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === postId
-            ? { ...post, comments: [...post.comments, response.data] }
-            : post
-        )
-      );
-    } catch (err) {
-      console.error('Failed to add comment:', err);
-    }
+  const handleComments = (postId) => {
+     navigate(`/comments/${postId}`);
+    alert(`Navigate to comment section for post #${postId}`);
+    // You can later implement modal or routing here
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-3xl font-bold">Stock Blog</h1>
-      {posts.length === 0 ? (
-        <p>Loading posts...</p>
-      ) : (
-        posts.map((post) => (
-          <Post
-            key={post.id}
-            post={post}
-            onLike={() => toggleLike(post.id)}
-            onAddComment={(text) => addComment(post.id, text)}
-          />
-        ))
-      )}
+    <div style={{ padding: '2rem' }}>
+      {/* Logout */}
+      <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
+        <button onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>
+          Logout
+        </button>
+      </div>
+
+      {/* Blog Posts */}
+      <h1>Blog Homepage</h1>
+      {posts.map((post) => (
+        
+        <div key={post.id} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
+          <h2>{post.title}</h2>
+          <p>{post.content}</p>
+          <p>{post.ticker}</p>
+          <small><strong>By:</strong> {post.author}</small>
+
+          {/* Buttons */}
+          <div style={{ marginTop: '1rem' }}>
+            {/* Favorite */}
+            <button
+              onClick={() => toggleFavorite(post.id)}
+              style={{
+                marginRight: '1rem',
+                cursor: 'pointer',
+                color: favorites[post.id] ? 'red' : 'gray',
+                fontSize: '1.2rem',
+                border: 'none',
+                background: 'none'
+              }}
+              title="Favorite"
+            >
+              {favorites[post.id] ? '❤️' : '🤍'}
+            </button>
+
+            {/* Comment */}
+            <button
+              onClick={() => handleComments(post.id)}
+              style={{
+                cursor: 'pointer',
+                padding: '0.3rem 0.6rem',
+                fontSize: '0.9rem'
+              }}
+            >
+              💬 Comment
+            </button>
+          </div>
+        </div>
+      ))}
     </div>
   );
-}
+};
 
 export default Blog;
