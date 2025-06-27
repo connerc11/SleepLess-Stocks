@@ -1,0 +1,19 @@
+{
+  "tim": {
+    "profile": {
+      "name": "jose",
+      "email": "jose@gmail.com",
+      "bio": "jose is smart"
+    },
+    "stocks": [
+      {
+        "ticker": "AAPL",
+        "priceTarget": "200"
+      },
+      {
+        "ticker": "AMZN",
+        "priceTarget": "200"
+      }
+    ]
+  }
+}
