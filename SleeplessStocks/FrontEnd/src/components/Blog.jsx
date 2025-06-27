@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import posts from '../../data'; // Ensure this path is correct
 
-const Blog = () => {
+const Blog = ({ setToken }) => {
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState({});
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    setToken(null); // Triggers rerender in App.jsx
     navigate('/');
   };
 
