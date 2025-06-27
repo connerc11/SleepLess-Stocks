@@ -12,12 +12,25 @@ const CommentPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const token = localStorage.getItem('token');
+    console.log('Token:', token);
+    console.log('Submitting comment:', { postId, content });
     try {
-      await api.post('/comments', {
+
+      const response = await api.post('/api/comments', {
         postId,
-        content,
-        author: 'CurrentUser', // replace with actual user data
-      });
+        text: content,
+        // author: 'CurrentUser', // replace with actual user data
+      
+    },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+);
+        console.log('Comment submitted:', response.data);
       navigate('/blog'); // go back to blog after successful submit
     } catch (err) {
       setError('Failed to post comment. Please try again.');
