@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/posts', postsRoute);
-app.use('/comments', commentsRoute);
+app.use('/api/comments', commentsRoute);
 app.use('/auth', authRoute);
 
 app.get('/', (req, res) => {

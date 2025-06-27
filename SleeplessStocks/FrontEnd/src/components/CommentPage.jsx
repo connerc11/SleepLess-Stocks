@@ -1,77 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+// src/components/CommentPage.jsx
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../api';
 
 const CommentPage = () => {
   const { postId } = useParams();
-  const [comment, setComment] = useState('');
-  const [comments, setComments] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Decode token to get username
-      const base64Url = token.split('.')[1];
-      const decoded = JSON.parse(atob(base64Url));
-      setCurrentUser(decoded.username);
-    }
-
-    api.get(`/comments/${postId}`)
-      .then(res => setComments(res.data))
-      .catch(err => console.error(err));
-  }, [postId]);
+  const navigate = useNavigate();
+  const [content, setContent] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
-      const res = await api.post(`/comments/${postId}`, { content: comment });
-      setComments([...comments, res.data]);
-      setComment('');
+      await api.post('/comments', {
+        postId,
+        content,
+        author: 'CurrentUser', // replace with actual user data
+      });
+      navigate('/blog'); // go back to blog after successful submit
     } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleDelete = async (commentId) => {
-    try {
-      await api.delete(`/comments/${postId}/${commentId}`);
-      setComments(comments.filter(c => c.id !== commentId));
-    } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete comment');
+      setError('Failed to post comment. Please try again.');
     }
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Comments for Post #{postId}</h2>
-
+    <div style={{
+      maxWidth: '600px',
+      margin: '2rem auto',
+      padding: '2rem',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      borderRadius: '10px',
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+      backgroundColor: '#fff',
+    }}>
+      <h2 style={{ marginBottom: '1rem', color: '#333' }}>Add a Comment</h2>
       <form onSubmit={handleSubmit}>
         <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Write your comment..."
-          rows="4"
-          cols="50"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Write your comment here..."
+          rows="5"
+          style={{
+            width: '100%',
+            padding: '1rem',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            fontSize: '1rem',
+            marginBottom: '1rem',
+            resize: 'vertical',
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+          }}
           required
         />
-        <br />
-        <button type="submit">Submit Comment</button>
+        {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+        <button
+          type="submit"
+          style={{
+            backgroundColor: '#1890ff',
+            color: 'white',
+            border: 'none',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '8px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            transition: 'background-color 0.3s ease',
+          }}
+          onMouseEnter={e => (e.target.style.backgroundColor = '#117acc')}
+          onMouseLeave={e => (e.target.style.backgroundColor = '#1890ff')}
+        >
+          Submit Comment
+        </button>
       </form>
-
-      <div style={{ marginTop: '2rem' }}>
-        <h3>Previous Comments</h3>
-        {comments.map(c => (
-          <div key={c.id} style={{ borderBottom: '1px solid #ccc', marginBottom: '1rem' }}>
-            <p><strong>{c.user}</strong>: {c.content}</p>
-            {currentUser === c.user && (
-              <button onClick={() => handleDelete(c.id)} style={{ color: 'red' }}>
-                Delete
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

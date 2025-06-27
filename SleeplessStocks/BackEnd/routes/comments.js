@@ -2,65 +2,80 @@ const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/auth');
 
-// In-memory comment store (replace with DB in production)
-let comments = [
-  // Example: { id: 1, postId: '101', user: 'alice', content: 'Great post!' }
-];
+let comments = []; // In-memory comments array
 
-// Get comments for a post
-router.get('/:postId', authenticateToken, (req, res) => {
-  const { postId } = req.params;
-  const postComments = comments.filter(c => c.postId === postId);
-  res.json(postComments);
+// GET all comments
+router.get('/', authenticateToken, (req, res) => {
+  res.json(comments);
 });
 
-// Create a comment
-router.post('/:postId', authenticateToken, (req, res) => {
+// GET comments by postId
+router.get('/:postId', authenticateToken, (req, res) => {
   const { postId } = req.params;
-  const { content } = req.body;
+  const filtered = comments.filter(comment => comment.postId == postId);
+  res.json(filtered);
+});
 
-  if (!content) {
-    return res.status(400).json({ error: 'Comment content is required.' });
+// POST a new comment
+router.post('/', authenticateToken, (req, res) => {
+  const { postId, text } = req.body;
+
+  if (!postId || !text) {
+    return res.status(400).json({ error: 'postId and text are required' });
+  }
+
+  if (!req.user?.username) {
+    return res.status(401).json({ error: 'Unauthorized: No user info' });
   }
 
   const newComment = {
-    id: Date.now().toString(),
+    id: comments.length + 1,
     postId,
-    user: req.user.username,
-    content,
+    text,
+    author: req.user.username,
+    createdAt: new Date(),
   };
+
   comments.push(newComment);
   res.status(201).json(newComment);
 });
 
-// Delete a comment
-router.delete('/:postId/:commentId', authenticateToken, (req, res) => {
-  const { postId, commentId } = req.params;
-  comments = comments.filter(c => !(c.postId === postId && c.id === commentId));
-  res.json({ message: 'Comment deleted' });
-});
+// PUT (edit) a comment by ID
+router.put('/:id', authenticateToken, (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
 
-// Delete a comment only if the user is the author
-router.delete('/:postId/:commentId', authenticateToken, (req, res) => {
-  const { postId, commentId } = req.params;
-  const comment = comments.find(
-    (c) => c.postId === postId && c.id === commentId
-  );
+  const comment = comments.find(c => c.id == id);
 
   if (!comment) {
     return res.status(404).json({ error: 'Comment not found' });
   }
 
-  if (comment.user !== req.user.username) {
-    return res.status(403).json({ error: 'Not authorized to delete this comment' });
+  if (comment.author !== req.user.username) {
+    return res.status(403).json({ error: 'You can only edit your own comments' });
   }
 
-  comments = comments.filter(
-    (c) => !(c.postId === postId && c.id === commentId)
-  );
+  comment.text = text || comment.text;
+  comment.updatedAt = new Date();
 
-  res.json({ message: 'Comment deleted' });
+  res.json(comment);
 });
 
+// DELETE a comment by ID
+router.delete('/:id', authenticateToken, (req, res) => {
+  const { id } = req.params;
+  const index = comments.findIndex(c => c.id == id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Comment not found' });
+  }
+
+  if (comments[index].author !== req.user.username) {
+    return res.status(403).json({ error: 'You can only delete your own comments' });
+  }
+
+  const deleted = comments.splice(index, 1);
+  res.json({ message: 'Comment deleted', deleted });
+});
 
 module.exports = router;

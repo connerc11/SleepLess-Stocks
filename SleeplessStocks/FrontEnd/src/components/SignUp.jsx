@@ -1,63 +1,65 @@
+// src/components/SignUp.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
-function Login() {
+function SignUp() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/auth/login', { username, password });
-      const { token } = response.data;
-      localStorage.setItem('token', token);
-     window.location.href = '/blog';
+      await api.post('/auth/signup', { username, password });
+      setSuccess('Account created! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
-      setError('Invalid credentials');
+      setError('Username may already exist or invalid data.');
     }
   };
 
-    const handleSignUpRedirect = () => {
-    navigate('/signup');
-  };
-
-
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Login to SleepLess Stocks</h2>
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <button type="submit" style={styles.button}>Login</button>
-          {error && <p style={styles.error}>{error}</p>}
-        
-          <p style={styles.text}>
-          Don't have an account?
-          <button type="button" onClick={handleSignUpRedirect} style={styles.linkButton}>
-            Sign Up
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <h2 style={styles.title}>Create Account</h2>
+
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+          style={styles.input}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+          style={styles.input}
+        />
+
+        <button type="submit" style={styles.button}>Sign Up</button>
+
+        {error && <p style={styles.error}>{error}</p>}
+        {success && <p style={styles.success}>{success}</p>}
+
+        <p style={styles.text}>
+          Already have an account?
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            style={styles.linkButton}
+          >
+            Log In
           </button>
         </p>
-        
-        </form>
-      </div>
+      </form>
     </div>
   );
 }
@@ -128,4 +130,4 @@ const styles = {
   }
 };
 
-export default Login;
+export default SignUp;

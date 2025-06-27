@@ -28,7 +28,6 @@ const Post = ({ id, title, content, ticker }) => {
 
   const handleLike = () => {
     setLiked(!liked);
-    // Optionally send like info to backend
   };
 
   const handleComment = () => {
