@@ -1,7 +1,6 @@
-// src/components/Blog.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import posts from '../../data';
+import posts from '../../data'; // Ensure this path is correct
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -10,6 +9,10 @@ const Blog = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
+  };
+
+  const goToProfile = () => {
+    navigate('/profile');
   };
 
   const toggleFavorite = (postId) => {
@@ -25,28 +28,16 @@ const Blog = () => {
 
   return (
     <div style={{ maxWidth: '900px', margin: '2rem auto', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
-      <div style={{ textAlign: 'right', marginBottom: '1rem' }}>
-        <button
-          onClick={handleLogout}
-          style={{
-            backgroundColor: '#ff4d4f',
-            color: 'white',
-            border: 'none',
-            padding: '0.6rem 1.2rem',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            transition: 'background-color 0.3s ease',
-          }}
-          onMouseEnter={e => (e.target.style.backgroundColor = '#d9363e')}
-          onMouseLeave={e => (e.target.style.backgroundColor = '#ff4d4f')}
-        >
-          Logout
-        </button>
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ color: '#333' }}>Blog Homepage</h1>
+        <div>
+          <button onClick={goToProfile} style={headerButtonStyle}>Profile</button>
+          <button onClick={handleLogout} style={logoutButtonStyle}>Logout</button>
+        </div>
       </div>
 
-      <h1 style={{ textAlign: 'center', color: '#333', marginBottom: '2rem' }}>Blog Homepage</h1>
-
+      {/* Blog Posts */}
       {posts.map((post) => (
         <div
           key={post.id}
@@ -116,6 +107,22 @@ const Blog = () => {
       ))}
     </div>
   );
+};
+
+// Styles
+const headerButtonStyle = {
+  padding: '0.5rem 1rem',
+  marginLeft: '0.5rem',
+  backgroundColor: '#333',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+};
+
+const logoutButtonStyle = {
+  ...headerButtonStyle,
+  backgroundColor: '#ff4d4f',
 };
 
 export default Blog;

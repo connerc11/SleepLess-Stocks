@@ -15,6 +15,8 @@ app.use(express.json());
 app.use('/posts', postsRoute);
 app.use('/api/comments', commentsRoute);
 app.use('/auth', authRoute);
+const profileRoute = require('./routes/profile');
+app.use('/profile', profileRoute);
 
 app.get('/', (req, res) => {
   res.send('API Running...');

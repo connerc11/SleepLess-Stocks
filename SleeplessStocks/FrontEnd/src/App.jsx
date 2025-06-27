@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Blog from './components/Blog';
 import SignUp from './components/SignUp';
+import Profile from './components/Profile';
 import CommentPage from './components/CommentPage';
-
+import AccountInfo from './components/AccountInfo';
 
 function App() {
   const token = localStorage.getItem('token');
@@ -23,6 +24,11 @@ function App() {
          <Route path="/signup" element={<SignUp />} />
 
         {/* Redirect root to login or blog based on token */}
+        <Route>
+  ...
+  <Route path="/profile" element={<Profile />} />
+  <Route path="/account" element={<AccountInfo />} />
+</Route>
         <Route
   path="/"
   element={token ? <Navigate to="/blog" replace /> : <Navigate to="/login" replace />}
