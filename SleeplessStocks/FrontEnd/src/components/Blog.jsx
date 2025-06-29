@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import posts from '../../data'; // Ensure this path is correct
+import posts from '../../data';
 import api from '../api';
 import CommentItem from './CommentItem';
 
@@ -10,11 +10,9 @@ const Blog = ({ setToken }) => {
   const [comments, setComments] = useState({});
 
   useEffect(() => {
-    // Fetch all comments for all posts
     const fetchComments = async () => {
       try {
         const res = await api.get('/api/comments');
-        // Group comments by postId
         const grouped = {};
         res.data.forEach(comment => {
           if (!grouped[comment.postId]) grouped[comment.postId] = [];
@@ -22,7 +20,7 @@ const Blog = ({ setToken }) => {
         });
         setComments(grouped);
       } catch (err) {
-        // Optionally handle error
+        console.error('Error fetching comments:', err);
       }
     };
     fetchComments();
@@ -30,7 +28,7 @@ const Blog = ({ setToken }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    setToken(null); // Triggers rerender in App.jsx
+    setToken(null);
     navigate('/');
   };
 
@@ -42,8 +40,9 @@ const Blog = ({ setToken }) => {
       navigate('/profile/edit');
     }
   };
+
   const toggleFavorite = (postId) => {
-    setFavorites((prev) => ({
+    setFavorites(prev => ({
       ...prev,
       [postId]: !prev[postId],
     }));
@@ -54,51 +53,39 @@ const Blog = ({ setToken }) => {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '2rem auto', fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
+    <div style={containerStyle}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ color: '#333' }}>Blog Homepage</h1>
+      <div style={headerStyle}>
+        <h1 style={titleStyle}>📝 Creative Blog Dashboard</h1>
         <div>
-          <button onClick={goToProfile} style={headerButtonStyle}>Profile</button>
-          <button onClick={handleLogout} style={logoutButtonStyle}>Logout</button>
+          <button onClick={() => navigate('/stock-search')} className="btn-outline" style={{ marginRight: '0.5rem' }}>
+            🔍 Stock Search
+          </button>
+          <button onClick={goToProfile} style={glassButton}>👤 Profile</button>
+          <button onClick={handleLogout} style={logoutButton}>🚪 Logout</button>
         </div>
       </div>
 
-      {/* Blog Posts */}
+      {/* Posts */}
       {posts.map((post) => (
         <div
           key={post.id}
-          style={{
-            boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '2rem',
-            background: '#fff',
-            transition: 'transform 0.2s ease',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
+          style={cardStyle}
+          onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.01)')}
           onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
         >
-          <h2 style={{ color: '#1a1a1a' }}>{post.title}</h2>
-          <p style={{ color: '#555', lineHeight: '1.5' }}>{post.content}</p>
-          <p style={{ fontWeight: '600', color: '#777' }}>{post.ticker}</p>
-          <small style={{ color: '#999' }}>
-            <strong>By:</strong> {post.author}
-          </small>
+          <h2 style={postTitle}>{post.title}</h2>
+          <p style={postContent}>{post.content}</p>
+          <p style={postTicker}>Ticker: {post.ticker}</p>
+          <p style={postAuthor}>By <strong>{post.author}</strong></p>
 
-          <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center' }}>
+          <div style={buttonRow}>
             <button
               onClick={() => toggleFavorite(post.id)}
               style={{
-                marginRight: '1rem',
-                cursor: 'pointer',
-                color: favorites[post.id] ? '#ff4d4f' : '#bbb',
-                fontSize: '1.6rem',
-                border: 'none',
-                background: 'none',
-                transition: 'color 0.3s ease',
+                ...favoriteButton,
+                color: favorites[post.id] ? '#ff5e5e' : '#ccc',
               }}
-              title={favorites[post.id] ? 'Unfavorite' : 'Favorite'}
               aria-label="Toggle Favorite"
             >
               {favorites[post.id] ? '❤️' : '🤍'}
@@ -106,62 +93,136 @@ const Blog = ({ setToken }) => {
 
             <button
               onClick={() => handleComments(post.id)}
-              style={{
-                cursor: 'pointer',
-                padding: '0.5rem 1rem',
-                fontSize: '1rem',
-                borderRadius: '6px',
-                border: '1px solid #1890ff',
-                color: '#1890ff',
-                background: 'white',
-                fontWeight: '600',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={e => {
-                e.target.style.backgroundColor = '#1890ff';
-                e.target.style.color = 'white';
-              }}
-              onMouseLeave={e => {
-                e.target.style.backgroundColor = 'white';
-                e.target.style.color = '#1890ff';
-              }}
+              style={commentButton}
               aria-label="Go to Comments"
             >
               💬 Comment
             </button>
           </div>
 
-          {/* Comments Section */}
-          <div style={{ marginTop: '1rem' }}>
-            {comments[post.id] && comments[post.id].length > 0 && (
-              <div>
-                <h4 style={{ margin: '0.5rem 0', color: '#555' }}>Comments:</h4>
-                {comments[post.id].map((comment) => (
-                  <CommentItem key={comment._id || comment.id} comment={comment} />
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Comments */}
+          {comments[post.id] && comments[post.id].length > 0 && (
+            <div style={commentSection}>
+              <h4 style={commentHeader}>Comments:</h4>
+              {comments[post.id].map((comment) => (
+                <CommentItem key={comment._id || comment.id} comment={comment} />
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
   );
 };
 
-// Styles
-const headerButtonStyle = {
-  padding: '0.5rem 1rem',
-  marginLeft: '0.5rem',
-  backgroundColor: '#333',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '4px',
-  cursor: 'pointer',
-};
-
-const logoutButtonStyle = {
-  ...headerButtonStyle,
-  backgroundColor: '#ff4d4f',
-};
-
 export default Blog;
+
+const containerStyle = {
+  maxWidth: '1000px',
+  margin: '2rem auto',
+  padding: '2rem',
+  fontFamily: 'Poppins, sans-serif',
+  background: 'linear-gradient(to right, #f9f9f9, #eaf1f8)',
+};
+
+const headerStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '2.5rem',
+};
+
+const titleStyle = {
+  fontSize: '2.4rem',
+  color: '#2c3e50',
+  textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+};
+
+const glassButton = {
+  padding: '0.6rem 1.2rem',
+  marginRight: '0.5rem',
+  border: 'none',
+  borderRadius: '8px',
+  background: 'rgba(255, 255, 255, 0.2)',
+  backdropFilter: 'blur(10px)',
+  color: '#2c3e50',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+};
+
+const logoutButton = {
+  ...glassButton,
+  background: '#ff4d4f',
+  color: '#fff',
+};
+
+const cardStyle = {
+  background: 'rgba(255, 255, 255, 0.8)',
+  backdropFilter: 'blur(6px)',
+  borderRadius: '15px',
+  padding: '2rem',
+  marginBottom: '2rem',
+  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+  transition: 'transform 0.3s ease',
+};
+
+const postTitle = {
+  color: '#34495e',
+  fontSize: '1.8rem',
+  marginBottom: '0.5rem',
+};
+
+const postContent = {
+  color: '#555',
+  lineHeight: '1.6',
+};
+
+const postTicker = {
+  fontStyle: 'italic',
+  color: '#888',
+  marginTop: '0.5rem',
+};
+
+const postAuthor = {
+  color: '#999',
+  fontSize: '0.9rem',
+};
+
+const buttonRow = {
+  marginTop: '1rem',
+  display: 'flex',
+  alignItems: 'center',
+};
+
+const favoriteButton = {
+  fontSize: '1.5rem',
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  transition: 'color 0.3s ease',
+  marginRight: '1rem',
+};
+
+const commentButton = {
+  background: '#1890ff',
+  color: 'white',
+  padding: '0.5rem 1.2rem',
+  fontWeight: '600',
+  border: 'none',
+  borderRadius: '6px',
+  cursor: 'pointer',
+  transition: 'background 0.3s ease',
+};
+
+const commentSection = {
+  marginTop: '1.5rem',
+  backgroundColor: '#f8f8f8',
+  borderRadius: '10px',
+  padding: '1rem',
+};
+
+const commentHeader = {
+  marginBottom: '0.5rem',
+  color: '#666',
+};

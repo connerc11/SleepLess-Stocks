@@ -7,6 +7,7 @@ import ProfileView from './components/ProfileView';
 import ProfileEdit from './components/ProfileEdit';
 import CommentPage from './components/CommentPage';
 import AccountInfo from './components/ProfileView';
+import StockSearch from './components/StockSearch';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -33,7 +34,7 @@ function App() {
 
         <Route path="/signup" element={<SignUp />} />
 
-    <Route
+        <Route
           path="/profile/edit"
           element={token ? <ProfileEdit /> : <Navigate to="/login" replace />}
         />
@@ -54,6 +55,7 @@ function App() {
         />
 
         <Route path="/comments/:postId" element={<CommentPage />} />
+        <Route path="/stock-search" element={<StockSearch />} />
       </Routes>
     </Router>
   );
