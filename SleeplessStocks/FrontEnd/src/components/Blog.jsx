@@ -9,6 +9,7 @@ const Blog = ({ setToken }) => {
   const [favorites, setFavorites] = useState({});
   const [comments, setComments] = useState({});
   const [stockQuotes, setStockQuotes] = useState({});
+  const [originalPosts, setOriginalPosts] = useState(posts);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -62,16 +63,23 @@ const Blog = ({ setToken }) => {
     }
   };
 
+  // When toggling favorite, keep the order in sync
   const toggleFavorite = (postId) => {
-    setFavorites(prev => ({
-      ...prev,
-      [postId]: !prev[postId],
-    }));
+    setFavorites(prev => {
+      const updated = { ...prev, [postId]: !prev[postId] };
+      return updated;
+    });
   };
 
   const handleComments = (postId) => {
     navigate(`/comments/${postId}`);
   };
+
+  // Compute the display order: favorites at top, both in original order
+  const favoriteIds = Object.keys(favorites).filter(id => favorites[id]);
+  const favoritePosts = originalPosts.filter(post => favoriteIds.includes(post.id.toString()));
+  const nonFavoritePosts = originalPosts.filter(post => !favoriteIds.includes(post.id.toString()));
+  const displayPosts = [...favoritePosts, ...nonFavoritePosts];
 
   return (
     <div style={containerStyle}>
@@ -100,7 +108,7 @@ const Blog = ({ setToken }) => {
       </header>
 
       {/* Posts */}
-      {posts.map((post) => (
+      {displayPosts.map((post) => (
         <div
           key={post.id}
           style={cardStyle}

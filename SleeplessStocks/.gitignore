@@ -1,3 +1,4 @@
 .env
 API_CONFIG.js
 node_modules/
+data.js
