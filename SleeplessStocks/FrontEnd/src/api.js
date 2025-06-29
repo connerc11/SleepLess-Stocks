@@ -13,5 +13,8 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Add this function to fetch real stock data from backend
+export const fetchStockQuote = (symbol) => api.get(`/api/stock/${symbol}`);
+
 
 export default api;

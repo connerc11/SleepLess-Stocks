@@ -78,7 +78,9 @@ const StockWatchlist = () => {
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <h2 style={titleStyle}>📈 Stock Watchlist</h2>
+        <h2 style={titleStyle}>
+          {profile && profile.name ? `${profile.name}'s Watchlist` : '📈 Stock Watchlist'}
+        </h2>
         <button onClick={() => navigate('/blog')} className="btn-outline">← Back to Blog</button>
       </div>
       <div style={{ marginBottom: '1.5rem' }}>

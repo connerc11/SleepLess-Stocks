@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import posts from '../../data';
-import api from '../api';
+import api, { fetchStockQuote } from '../api';
 import CommentItem from './CommentItem';
 
 const Blog = ({ setToken }) => {
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState({});
   const [comments, setComments] = useState({});
+  const [stockQuotes, setStockQuotes] = useState({});
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -24,6 +25,26 @@ const Blog = ({ setToken }) => {
       }
     };
     fetchComments();
+  }, []);
+
+  useEffect(() => {
+    // Fetch stock prices for all unique tickers
+    const fetchAllQuotes = async () => {
+      const tickers = Array.from(new Set(posts.map(post => post.ticker)));
+      const quotes = {};
+      await Promise.all(
+        tickers.map(async (ticker) => {
+          try {
+            const res = await fetchStockQuote(ticker);
+            quotes[ticker] = res.data;
+          } catch {
+            quotes[ticker] = null;
+          }
+        })
+      );
+      setStockQuotes(quotes);
+    };
+    fetchAllQuotes();
   }, []);
 
   const handleLogout = () => {
@@ -89,6 +110,12 @@ const Blog = ({ setToken }) => {
           <h2 style={postTitle}>{post.title}</h2>
           <p style={postContent}>{post.content}</p>
           <p style={postTicker}>Ticker: {post.ticker}</p>
+          {stockQuotes[post.ticker] && (
+            <div style={{ fontSize: '1rem', margin: '0.5rem 0', color: '#1890ff' }}>
+              Open: <span style={{ color: '#faad14', fontWeight: 'bold' }}>${stockQuotes[post.ticker].o}</span> | 
+              Current/Close: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stockQuotes[post.ticker].c}</span>
+            </div>
+          )}
           <p style={postAuthor}>By <strong>{post.author}</strong></p>
 
           <div style={buttonRow}>

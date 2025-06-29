@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
+import api, { fetchStockQuote } from '../api';
 
 const containerStyle = {
   maxWidth: '600px',
@@ -39,9 +39,9 @@ const headerBtnStyle = {
 
 const StockSearch = () => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]); // Store all searched stocks
+  const [searchedStocks, setSearchedStocks] = useState([]);
   const [error, setError] = useState('');
-  const [profile, setProfile] = useState(null); // For profile info
+  const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
 
   // Load saved stocks on mount
@@ -50,7 +50,7 @@ const StockSearch = () => {
       try {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        setResults(res.data.stocks || []);
+        setSearchedStocks(res.data.searchedStocks || []);
       } catch {
         // No profile or not logged in
       }
@@ -60,7 +60,7 @@ const StockSearch = () => {
   // Save stocks to backend
   const saveStocks = async (newStocks) => {
     try {
-      await api.post('/profile', { profile: profile || {}, stocks: newStocks });
+      await api.post('/profile', { profile: profile || {}, searchedStocks: newStocks });
     } catch (err) {
       setError('Failed to save stocks');
     }
@@ -69,11 +69,24 @@ const StockSearch = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     setError('');
-    const newResult = { ticker: query.toUpperCase(), priceTarget: (Math.random() * 1000).toFixed(2) };
-    const updated = [newResult, ...results];
-    setResults(updated);
-    setQuery('');
-    await saveStocks(updated);
+    try {
+      const res = await fetchStockQuote(query);
+      if (res.data.o === 0 && res.data.c === 0) {
+        setError('This stock does not exist. Try again.');
+        return;
+      }
+      const newStock = {
+        ticker: query.toUpperCase(),
+        open: res.data.o,
+        close: res.data.c,
+      };
+      const updated = [newStock, ...searchedStocks.filter(s => s.ticker !== newStock.ticker)];
+      setSearchedStocks(updated);
+      setQuery('');
+      await saveStocks(updated);
+    } catch (err) {
+      setError('Failed to fetch stock data');
+    }
   };
 
   return (
@@ -115,11 +128,19 @@ const StockSearch = () => {
         />
         <button type="submit" className="btn-outline w-full" style={{ fontWeight: 'bold', fontSize: '1rem' }}>Search</button>
       </form>
-      {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-      {results.map((result, idx) => (
+      {error && (
+        <div style={{ color: 'red', marginBottom: '1rem' }}>
+          {error}
+          <div style={{ color: '#b36b00', marginTop: '0.5rem', fontWeight: 500 }}>
+            Please wait and try again in a couple minutes.
+          </div>
+        </div>
+      )}
+      {searchedStocks.map((stock, idx) => (
         <div key={idx} style={{ background: '#f8f8f8', borderRadius: '10px', padding: '1.5rem', textAlign: 'center', marginBottom: '1rem' }}>
-          <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#1890ff' }}>Symbol: {result.ticker}</div>
-          <div style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>Price: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${result.priceTarget}</span></div>
+          <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#1890ff' }}>Symbol: {stock.ticker}</div>
+          <div style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>Open: <span style={{ color: '#faad14', fontWeight: 'bold' }}>${stock.open}</span></div>
+          <div style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>Current/Close: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stock.close}</span></div>
         </div>
       ))}
     </div>
