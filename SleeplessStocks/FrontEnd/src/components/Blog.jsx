@@ -55,16 +55,28 @@ const Blog = ({ setToken }) => {
   return (
     <div style={containerStyle}>
       {/* Header */}
-      <div style={headerStyle}>
-        <h1 style={titleStyle}>📝 Creative Blog Dashboard</h1>
-        <div>
-          <button onClick={() => navigate('/stock-search')} className="btn-outline" style={{ marginRight: '0.5rem' }}>
+      <header style={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        borderBottom: '1px solid #e0e0e0',
+        paddingBottom: '1rem',
+        marginBottom: '2.5rem',
+        boxSizing: 'border-box',
+      }}>
+        <nav style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', alignSelf: 'flex-end', marginRight: '1rem' }}>
+          <button onClick={() => navigate('/stock-search')} className="btn-outline" style={headerBtnStyle}>
             🔍 Stock Search
           </button>
-          <button onClick={goToProfile} style={glassButton}>👤 Profile</button>
-          <button onClick={handleLogout} style={logoutButton}>🚪 Logout</button>
-        </div>
-      </div>
+          <button onClick={() => navigate('/watchlist')} className="btn-outline" style={headerBtnStyle}>
+            ⭐ Stock Watchlist
+          </button>
+          <button onClick={goToProfile} style={headerBtnStyle} className="btn-outline">👤 Profile</button>
+          <button onClick={handleLogout} style={{ ...headerBtnStyle, background: '#ff4d4f', color: '#fff' }} className="btn-outline">🚪 Logout</button>
+        </nav>
+        <h1 style={{ ...titleStyle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>📝 Creative Blog Dashboard</h1>
+      </header>
 
       {/* Posts */}
       {posts.map((post) => (
@@ -125,20 +137,13 @@ const containerStyle = {
   background: 'linear-gradient(to right, #f9f9f9, #eaf1f8)',
 };
 
-const headerStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '2.5rem',
-};
-
 const titleStyle = {
   fontSize: '2.4rem',
   color: '#2c3e50',
   textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
 };
 
-const glassButton = {
+const headerBtnStyle = {
   padding: '0.6rem 1.2rem',
   marginRight: '0.5rem',
   border: 'none',
@@ -149,12 +154,8 @@ const glassButton = {
   fontWeight: 'bold',
   cursor: 'pointer',
   boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-};
-
-const logoutButton = {
-  ...glassButton,
-  background: '#ff4d4f',
-  color: '#fff',
+  fontSize: '1rem',
+  minWidth: '150px',
 };
 
 const cardStyle = {

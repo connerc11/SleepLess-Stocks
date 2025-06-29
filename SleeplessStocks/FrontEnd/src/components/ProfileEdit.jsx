@@ -18,6 +18,18 @@ const ProfileEdit = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    // Email must contain '@'
+    if (!profile.email.includes('@')) {
+      setError('Email must contain an "@" symbol.');
+      return;
+    }
+    // All price targets must be valid numbers
+    for (let s of stocks) {
+      if (isNaN(Number(s.priceTarget)) || s.priceTarget === '') {
+        setError('All price targets must be valid numbers.');
+        return;
+      }
+    }
     try {
       const token = localStorage.getItem('token');
       await api.post('/profile', { profile, stocks }, {

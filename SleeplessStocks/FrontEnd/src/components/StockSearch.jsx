@@ -22,6 +22,20 @@ const titleStyle = {
   fontSize: '2rem',
   fontWeight: 'bold',
 };
+const headerBtnStyle = {
+  padding: '0.6rem 1.2rem',
+  marginRight: '0.5rem',
+  border: 'none',
+  borderRadius: '8px',
+  background: 'rgba(255, 255, 255, 0.2)',
+  backdropFilter: 'blur(10px)',
+  color: '#2c3e50',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+  fontSize: '1rem',
+  minWidth: '150px',
+};
 
 const StockSearch = () => {
   const [query, setQuery] = useState('');
@@ -64,10 +78,24 @@ const StockSearch = () => {
 
   return (
     <div style={containerStyle}>
-      <div style={headerStyle}>
-        <h2 style={titleStyle}>🔍 Search for a Stock</h2>
-        <button onClick={() => navigate('/blog')} className="btn-outline">← Back to Blog</button>
-      </div>
+      <header style={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        borderBottom: '1px solid #e0e0e0',
+        paddingBottom: '1rem',
+        marginBottom: '2rem',
+        paddingLeft: '1rem',
+        boxSizing: 'border-box',
+      }}>
+        <nav style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
+          <button onClick={() => navigate('/blog')} style={headerBtnStyle} className="btn-outline">← Back to Blog</button>
+          <button onClick={() => navigate('/stock-search')} style={headerBtnStyle} className="btn-outline">🔍 Stock Search</button>
+          <button onClick={() => navigate('/watchlist')} style={headerBtnStyle} className="btn-outline">⭐ Watchlist</button>
+        </nav>
+        <h2 style={{ ...titleStyle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>🔍 Search for a Stock</h2>
+      </header>
       <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem' }}>
         <input
           type="text"

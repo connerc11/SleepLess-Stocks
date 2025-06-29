@@ -8,6 +8,7 @@ import ProfileEdit from './components/ProfileEdit';
 import CommentPage from './components/CommentPage';
 import AccountInfo from './components/ProfileView';
 import StockSearch from './components/StockSearch';
+import StockWatchlist from './components/StockWatchlist';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -56,6 +57,7 @@ function App() {
 
         <Route path="/comments/:postId" element={<CommentPage />} />
         <Route path="/stock-search" element={<StockSearch />} />
+        <Route path="/watchlist" element={<StockWatchlist />} />
       </Routes>
     </Router>
   );
