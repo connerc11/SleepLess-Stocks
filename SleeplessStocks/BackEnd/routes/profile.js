@@ -6,8 +6,13 @@ let userProfiles = {}; // in-memory
 
 router.post('/', authenticateToken, (req, res) => {
   const username = req.user.username;
-  const { profile, stocks } = req.body;
-  userProfiles[username] = { profile, stocks };
+  const { profile, stocks, favorites, searchedStocks } = req.body;
+  userProfiles[username] = {
+    profile,
+    stocks: stocks || (userProfiles[username] && userProfiles[username].stocks) || [],
+    favorites: favorites || (userProfiles[username] && userProfiles[username].favorites) || {},
+    searchedStocks: searchedStocks || (userProfiles[username] && userProfiles[username].searchedStocks) || [],
+  };
   return res.status(201).json({ message: 'Profile saved' });
 });
 

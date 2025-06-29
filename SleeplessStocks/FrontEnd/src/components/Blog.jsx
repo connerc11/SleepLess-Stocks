@@ -10,6 +10,7 @@ const Blog = ({ setToken }) => {
   const [comments, setComments] = useState({});
   const [stockQuotes, setStockQuotes] = useState({});
   const [originalPosts, setOriginalPosts] = useState(posts);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -48,6 +49,19 @@ const Blog = ({ setToken }) => {
     fetchAllQuotes();
   }, []);
 
+  // Load favorites from backend on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.get('/profile');
+        setProfile(res.data.profile || {});
+        setFavorites(res.data.favorites || {});
+      } catch {
+        // No profile or not logged in
+      }
+    })();
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     setToken(null);
@@ -63,10 +77,20 @@ const Blog = ({ setToken }) => {
     }
   };
 
+  // Save favorites to backend
+  const saveFavorites = async (newFavorites) => {
+    try {
+      await api.post('/profile', { profile: profile || {}, favorites: newFavorites });
+    } catch (err) {
+      // Optionally handle error
+    }
+  };
+
   // When toggling favorite, keep the order in sync
   const toggleFavorite = (postId) => {
     setFavorites(prev => {
       const updated = { ...prev, [postId]: !prev[postId] };
+      saveFavorites(updated);
       return updated;
     });
   };
@@ -104,7 +128,7 @@ const Blog = ({ setToken }) => {
           <button onClick={goToProfile} style={headerBtnStyle} className="btn-outline">👤 Profile</button>
           <button onClick={handleLogout} style={{ ...headerBtnStyle, background: '#ff4d4f', color: '#fff' }} className="btn-outline">🚪 Logout</button>
         </nav>
-        <h1 style={{ ...titleStyle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>📝 Creative Blog Dashboard</h1>
+        <h1 style={{ ...titleStyle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>📝 Conner's Stock Opinions</h1>
       </header>
 
       {/* Posts */}
@@ -158,6 +182,21 @@ const Blog = ({ setToken }) => {
           )}
         </div>
       ))}
+
+      <footer style={{
+        width: '100%',
+        textAlign: 'center',
+        padding: '1.2rem 0 0.7rem 0',
+        color: '#888',
+        fontSize: '1.05rem',
+        fontFamily: 'Poppins, sans-serif',
+        letterSpacing: '0.01em',
+        background: 'none',
+        marginTop: '2rem',
+        opacity: 0.85,
+      }}>
+        Made by Conner Cochrane! this is not financial advice but just my opinion 🙂
+      </footer>
     </div>
   );
 };

@@ -122,6 +122,20 @@ const StockWatchlist = () => {
           </div>
         ))}
       </div>
+      <footer style={{
+        width: '100%',
+        textAlign: 'center',
+        padding: '1.2rem 0 0.7rem 0',
+        color: '#888',
+        fontSize: '1.05rem',
+        fontFamily: 'Poppins, sans-serif',
+        letterSpacing: '0.01em',
+        background: 'none',
+        marginTop: '2rem',
+        opacity: 0.85,
+      }}>
+        Made by Conner Cochrane! this is not financial advice but just my opinion 🙂
+      </footer>
     </div>
   );
 };
