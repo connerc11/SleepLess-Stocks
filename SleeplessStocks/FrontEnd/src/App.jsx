@@ -3,9 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Blog from './components/Blog';
 import SignUp from './components/SignUp';
-import Profile from './components/Profile';
+import ProfileView from './components/ProfileView';
+import ProfileEdit from './components/ProfileEdit';
 import CommentPage from './components/CommentPage';
-import AccountInfo from './components/AccountInfo';
+import AccountInfo from './components/ProfileView';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
@@ -32,10 +33,20 @@ function App() {
 
         <Route path="/signup" element={<SignUp />} />
 
-        <Route>
+    <Route
+          path="/profile/edit"
+          element={token ? <ProfileEdit /> : <Navigate to="/login" replace />}
+        />
+
+        <Route
+          path="/profile"
+          element={token ? <ProfileView /> : <Navigate to="/login" replace />}
+        />
+
+        {/* <Route>
           <Route path="/profile" element={<Profile />} />
           <Route path="/account" element={<AccountInfo />} />
-        </Route>
+        </Route> */}
 
         <Route
           path="/"

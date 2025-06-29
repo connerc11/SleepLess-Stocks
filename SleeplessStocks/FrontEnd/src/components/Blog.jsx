@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import posts from '../../data'; // Ensure this path is correct
+import api from '../api';
 
 const Blog = ({ setToken }) => {
   const navigate = useNavigate();
@@ -12,10 +13,14 @@ const Blog = ({ setToken }) => {
     navigate('/');
   };
 
-  const goToProfile = () => {
-    navigate('/profile');
+  const goToProfile = async () => {
+    try {
+      const res = await api.get('/profile');
+      navigate(res.data.profile ? '/profile' : '/profile/edit');
+    } catch {
+      navigate('/profile/edit');
+    }
   };
-
   const toggleFavorite = (postId) => {
     setFavorites((prev) => ({
       ...prev,

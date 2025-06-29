@@ -15,5 +15,31 @@
         "priceTarget": "200"
       }
     ]
+  },
+  "jose": {
+    "profile": {
+      "name": "jose",
+      "email": "jose@gmail.com",
+      "bio": "jose"
+    },
+    "stocks": [
+      {
+        "ticker": "JSE",
+        "priceTarget": "1"
+      }
+    ]
+  },
+  "sam": {
+    "profile": {
+      "name": "mike",
+      "email": "mike@ff.cin",
+      "bio": "HUHUHUH"
+    },
+    "stocks": [
+      {
+        "ticker": "AAPL",
+        "priceTarget": "1011"
+      }
+    ]
   }
 }
