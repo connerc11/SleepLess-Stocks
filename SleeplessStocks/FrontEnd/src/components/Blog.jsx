@@ -1,11 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import posts from '../../data'; // Ensure this path is correct
 import api from '../api';
+import CommentItem from './CommentItem';
 
 const Blog = ({ setToken }) => {
   const navigate = useNavigate();
   const [favorites, setFavorites] = useState({});
+  const [comments, setComments] = useState({});
+
+  useEffect(() => {
+    // Fetch all comments for all posts
+    const fetchComments = async () => {
+      try {
+        const res = await api.get('/api/comments');
+        // Group comments by postId
+        const grouped = {};
+        res.data.forEach(comment => {
+          if (!grouped[comment.postId]) grouped[comment.postId] = [];
+          grouped[comment.postId].push(comment);
+        });
+        setComments(grouped);
+      } catch (err) {
+        // Optionally handle error
+      }
+    };
+    fetchComments();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -108,6 +129,18 @@ const Blog = ({ setToken }) => {
             >
               💬 Comment
             </button>
+          </div>
+
+          {/* Comments Section */}
+          <div style={{ marginTop: '1rem' }}>
+            {comments[post.id] && comments[post.id].length > 0 && (
+              <div>
+                <h4 style={{ margin: '0.5rem 0', color: '#555' }}>Comments:</h4>
+                {comments[post.id].map((comment) => (
+                  <CommentItem key={comment._id || comment.id} comment={comment} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       ))}
