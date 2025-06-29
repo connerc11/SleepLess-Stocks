@@ -14,6 +14,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Add a response interceptor for better error logging
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response) {
+      console.error('API error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error('No response received:', error.request);
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Add this function to fetch real stock data from backend
 export const fetchStockQuote = (symbol) => api.get(`/api/stock/${symbol}`);
 
