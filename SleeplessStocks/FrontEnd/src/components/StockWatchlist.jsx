@@ -5,11 +5,11 @@ import api from '../api';
 const recommended = ['AAPL', 'TSLA', 'AMZN', 'SOFI', 'UPST', 'HOOD', 'HIMS', 'COF'];
 
 const containerStyle = {
-  maxWidth: '600px',
-  margin: '2rem auto',
-  padding: '2rem',
-  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-  borderRadius: '10px',
+  maxWidth: '950px',
+  margin: '2.5rem auto',
+  padding: '2.5rem',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.13)',
+  borderRadius: '18px',
   fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   backgroundColor: '#fff',
 };

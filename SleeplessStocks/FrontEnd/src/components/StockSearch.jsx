@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import api, { fetchStockQuote } from '../api';
 
 const containerStyle = {
-  maxWidth: '600px',
-  margin: '2rem auto',
-  padding: '2rem',
-  boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-  borderRadius: '10px',
+  maxWidth: '950px',
+  margin: '2.5rem auto',
+  padding: '2.5rem',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.13)',
+  borderRadius: '18px',
   fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   backgroundColor: '#fff',
 };
@@ -42,15 +42,17 @@ const StockSearch = () => {
   const [searchedStocks, setSearchedStocks] = useState([]);
   const [error, setError] = useState('');
   const [profile, setProfile] = useState(null);
+  const [watchlist, setWatchlist] = useState([]);
   const navigate = useNavigate();
 
-  // Load saved stocks on mount
+  // Load saved stocks and watchlist on mount
   useEffect(() => {
     (async () => {
       try {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
         setSearchedStocks(res.data.searchedStocks || []);
+        setWatchlist(res.data.stocks || []);
       } catch {
         // No profile or not logged in
       }
@@ -60,9 +62,18 @@ const StockSearch = () => {
   // Save stocks to backend
   const saveStocks = async (newStocks) => {
     try {
-      await api.post('/profile', { profile: profile || {}, searchedStocks: newStocks });
+      await api.post('/profile', { profile: profile || {}, searchedStocks: newStocks, stocks: watchlist });
     } catch (err) {
       setError('Failed to save stocks');
+    }
+  };
+
+  // Save watchlist to backend
+  const saveWatchlist = async (newList) => {
+    try {
+      await api.post('/profile', { profile: profile || {}, stocks: newList, searchedStocks });
+    } catch (err) {
+      setError('Failed to save watchlist');
     }
   };
 
@@ -89,25 +100,37 @@ const StockSearch = () => {
     }
   };
 
+  // Add to watchlist from search result
+  const handleAddToWatchlist = async (stock) => {
+    if (watchlist.some(s => s.ticker === stock.ticker)) return;
+    const newStock = { ticker: stock.ticker, price: stock.close };
+    const updated = [newStock, ...watchlist];
+    setWatchlist(updated);
+    await saveWatchlist(updated);
+  };
+
   return (
     <div style={containerStyle}>
       <header style={{
         width: '100%',
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
         borderBottom: '1px solid #e0e0e0',
         paddingBottom: '1rem',
         marginBottom: '2rem',
         paddingLeft: '1rem',
         boxSizing: 'border-box',
+        justifyContent: 'space-between',
       }}>
-        <nav style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ ...titleStyle, textAlign: 'left', alignSelf: 'center', margin: 0 }}>
+          🔍 Search for a Stock
+        </h2>
+        <nav style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: 0 }}>
           <button onClick={() => navigate('/blog')} style={headerBtnStyle} className="btn-outline">← Back to Blog</button>
           <button onClick={() => navigate('/watchlist')} style={headerBtnStyle} className="btn-outline">⭐ Watchlist</button>
           <button onClick={() => navigate('/profile')} style={headerBtnStyle} className="btn-outline">👤 Profile</button>
         </nav>
-        <h2 style={{ ...titleStyle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>🔍 Search for a Stock</h2>
       </header>
       <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem' }}>
         <input
@@ -136,13 +159,24 @@ const StockSearch = () => {
           </div>
         </div>
       )}
-      {searchedStocks.map((stock, idx) => (
-        <div key={idx} style={{ background: '#f8f8f8', borderRadius: '10px', padding: '1.5rem', textAlign: 'center', marginBottom: '1rem' }}>
-          <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#1890ff' }}>Symbol: {stock.ticker}</div>
-          <div style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>Open: <span style={{ color: '#faad14', fontWeight: 'bold' }}>${stock.open}</span></div>
-          <div style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>Current/Close: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stock.close}</span></div>
-        </div>
-      ))}
+      {searchedStocks.map((stock, idx) => {
+        const inWatchlist = watchlist.some(s => s.ticker === stock.ticker);
+        return (
+          <div key={idx} style={{ background: '#f8f8f8', borderRadius: '10px', padding: '1.5rem', textAlign: 'center', marginBottom: '1rem' }}>
+            <div style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#1890ff' }}>Symbol: {stock.ticker}</div>
+            <div style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>Open: <span style={{ color: '#faad14', fontWeight: 'bold' }}>${stock.open}</span></div>
+            <div style={{ fontSize: '1.1rem', marginTop: '0.5rem' }}>Current/Close: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stock.close}</span></div>
+            <button
+              className="btn-outline"
+              style={{ marginTop: '1rem', fontWeight: 'bold', fontSize: '1rem', opacity: inWatchlist ? 0.5 : 1, cursor: inWatchlist ? 'not-allowed' : 'pointer' }}
+              onClick={() => handleAddToWatchlist(stock)}
+              disabled={inWatchlist}
+            >
+              {inWatchlist ? 'Added to Watchlist' : 'Add to Watchlist'}
+            </button>
+          </div>
+        );
+      })}
       <footer style={{
         width: '100%',
         textAlign: 'center',

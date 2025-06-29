@@ -58,7 +58,7 @@ const ProfileView = () => {
 export default ProfileView;
 
 // Styles
-const viewContainer = { maxWidth: '700px', margin: '2rem auto', padding: '2rem', background: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontFamily: 'Segoe UI, sans-serif' };
+const viewContainer = { maxWidth: '950px', margin: '2.5rem auto', padding: '2.5rem', background: '#fff', borderRadius: '18px', boxShadow: '0 8px 32px rgba(0,0,0,0.13)', fontFamily: 'Segoe UI, sans-serif' };
 const viewTitle = { fontSize: '1.8rem', borderBottom: '1px solid #ccc', paddingBottom: '0.5rem' };
 const viewInfo = { marginTop: '1rem', lineHeight: '1.6' };
 const viewHeader = { marginTop: '2rem', marginBottom: '1rem', fontSize: '1.4rem' };

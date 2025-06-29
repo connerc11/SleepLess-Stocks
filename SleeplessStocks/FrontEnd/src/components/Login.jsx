@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import MountainBackground from './MoutainBackground'; // ✅ NEW
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -14,20 +15,21 @@ function Login() {
       const response = await api.post('/auth/login', { username, password });
       const { token } = response.data;
       localStorage.setItem('token', token);
-     window.location.href = '/blog';
+      window.location.href = '/blog';
     } catch (err) {
       setError('Invalid credentials');
     }
   };
 
-    const handleSignUpRedirect = () => {
+  const handleSignUpRedirect = () => {
     navigate('/signup');
   };
 
-
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
+      <MountainBackground /> {/* ✅ NEW */}
+
+      <div style={styles.card} className="form-fade-in">
         <h2 style={styles.title}>Login to SleepLess Stocks</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
@@ -48,47 +50,56 @@ function Login() {
           />
           <button type="submit" style={styles.button}>Login</button>
           {error && <p style={styles.error}>{error}</p>}
-        
+
           <p style={styles.text}>
-          Don't have an account?
-          <button type="button" onClick={handleSignUpRedirect} style={styles.linkButton}>
-            Sign Up
-          </button>
-        </p>
-        
+            Don't have an account?
+            <button type="button" onClick={handleSignUpRedirect} style={styles.linkButton}>
+              Sign Up
+            </button>
+          </p>
         </form>
       </div>
+
+      <style>{`
+        .form-fade-in {
+          animation: fadeInUp 1.2s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
 
 const styles = {
   container: {
-    background: 'linear-gradient(135deg, #1d2b64, #f8cdda)',
+    position: 'relative',
     height: '100vh',
+    width: '100vw',
+    overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-  },
-   text: {
-    textAlign: 'center',
-    fontSize: '0.9rem',
-    color: '#555',
+    backgroundColor: '#1d2b64',
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     padding: '2.5rem',
     borderRadius: '12px',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 12px 30px rgba(0, 0, 0, 0.2)',
     maxWidth: '400px',
-    width: '100%',
+    width: '90%',
+    zIndex: 2,
     textAlign: 'center',
   },
   title: {
     marginBottom: '1.5rem',
     fontSize: '1.8rem',
-    color: '#333',
+    color: '#1d2b64',
   },
   form: {
     display: 'flex',
@@ -113,7 +124,11 @@ const styles = {
     cursor: 'pointer',
     transition: 'background 0.3s ease-in-out',
   },
-   linkButton: {
+  text: {
+    fontSize: '0.9rem',
+    color: '#444',
+  },
+  linkButton: {
     background: 'none',
     border: 'none',
     color: '#007bff',

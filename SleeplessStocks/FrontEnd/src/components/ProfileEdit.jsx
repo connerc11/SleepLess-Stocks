@@ -73,7 +73,7 @@ const ProfileEdit = () => {
 export default ProfileEdit;
 
 // Styles
-const editContainer = { maxWidth: '700px', margin: '2rem auto', padding: '2rem', background: '#fdfdfd', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontFamily: 'Segoe UI, sans-serif' };
+const editContainer = { maxWidth: '950px', margin: '2.5rem auto', padding: '2.5rem', background: '#fdfdfd', borderRadius: '18px', boxShadow: '0 8px 32px rgba(0,0,0,0.13)', fontFamily: 'Segoe UI, sans-serif' };
 const editTitle = { fontSize: '1.8rem', marginBottom: '1rem' };
 const editForm = { display: 'flex', flexDirection: 'column', gap: '1rem' };
 const input = { padding: '0.75rem', border: '1px solid #ccc', borderRadius: '6px', fontSize: '1rem' };
