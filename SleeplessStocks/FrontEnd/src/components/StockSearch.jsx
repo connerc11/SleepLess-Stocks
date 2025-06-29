@@ -104,8 +104,8 @@ const StockSearch = () => {
       }}>
         <nav style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
           <button onClick={() => navigate('/blog')} style={headerBtnStyle} className="btn-outline">← Back to Blog</button>
-          <button onClick={() => navigate('/stock-search')} style={headerBtnStyle} className="btn-outline">🔍 Stock Search</button>
           <button onClick={() => navigate('/watchlist')} style={headerBtnStyle} className="btn-outline">⭐ Watchlist</button>
+          <button onClick={() => navigate('/profile')} style={headerBtnStyle} className="btn-outline">👤 Profile</button>
         </nav>
         <h2 style={{ ...titleStyle, textAlign: 'center', alignSelf: 'center', width: '100%' }}>🔍 Search for a Stock</h2>
       </header>
@@ -155,7 +155,7 @@ const StockSearch = () => {
         marginTop: '2rem',
         opacity: 0.85,
       }}>
-        Made by Conner Cochrane! this is not financial advice but just my opinion 🙂
+        Made by Conner Cochrane!  🙂
       </footer>
     </div>
   );

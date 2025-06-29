@@ -16,9 +16,9 @@ router.get('/:postId', authenticateToken, (req, res) => {
   res.json(filtered);
 });
 
-// POST a new comment
+// POST a new comment (support parentId for replies)
 router.post('/', authenticateToken, (req, res) => {
-  const { postId, text } = req.body;
+  const { postId, text, parentId } = req.body;
 
   if (!postId || !text) {
     return res.status(400).json({ error: 'postId and text are required' });
@@ -34,6 +34,7 @@ router.post('/', authenticateToken, (req, res) => {
     text,
     author: req.user.username,
     createdAt: new Date(),
+    parentId: parentId || null,
   };
 
   comments.push(newComment);
@@ -76,6 +77,25 @@ router.delete('/:id', authenticateToken, (req, res) => {
 
   const deleted = comments.splice(index, 1);
   res.json({ message: 'Comment deleted', deleted });
+});
+
+// Like/unlike a comment
+router.post('/:id/like', authenticateToken, (req, res) => {
+  const { id } = req.params;
+  const username = req.user.username;
+  const comment = comments.find(c => c.id == id);
+  if (!comment) {
+    return res.status(404).json({ error: 'Comment not found' });
+  }
+  if (!comment.likes) comment.likes = [];
+  if (comment.likes.includes(username)) {
+    // Unlike
+    comment.likes = comment.likes.filter(u => u !== username);
+  } else {
+    // Like
+    comment.likes.push(username);
+  }
+  res.json({ likes: comment.likes.length, liked: comment.likes.includes(username) });
 });
 
 module.exports = router;

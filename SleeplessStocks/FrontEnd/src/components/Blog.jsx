@@ -11,6 +11,20 @@ const Blog = ({ setToken }) => {
   const [stockQuotes, setStockQuotes] = useState({});
   const [originalPosts, setOriginalPosts] = useState(posts);
   const [profile, setProfile] = useState(null);
+  // Get current user from token
+  const [currentUser, setCurrentUser] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUser(payload.username);
+      } catch {
+        setCurrentUser('');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -99,6 +113,21 @@ const Blog = ({ setToken }) => {
     navigate(`/comments/${postId}`);
   };
 
+  // Refresh comments after edit/delete
+  const refreshComments = async () => {
+    try {
+      const res = await api.get('/api/comments');
+      const grouped = {};
+      res.data.forEach(comment => {
+        if (!grouped[comment.postId]) grouped[comment.postId] = [];
+        grouped[comment.postId].push(comment);
+      });
+      setComments(grouped);
+    } catch (err) {
+      // handle error
+    }
+  };
+
   // Compute the display order: favorites at top, both in original order
   const favoriteIds = Object.keys(favorites).filter(id => favorites[id]);
   const favoritePosts = originalPosts.filter(post => favoriteIds.includes(post.id.toString()));
@@ -175,9 +204,18 @@ const Blog = ({ setToken }) => {
           {comments[post.id] && comments[post.id].length > 0 && (
             <div style={commentSection}>
               <h4 style={commentHeader}>Comments:</h4>
-              {comments[post.id].map((comment) => (
-                <CommentItem key={comment._id || comment.id} comment={comment} />
-              ))}
+              {comments[post.id]
+                .filter(comment => !comment.parentId)
+                .map((comment) => (
+                  <CommentItem
+                    key={comment._id || comment.id}
+                    comment={comment}
+                    currentUser={currentUser}
+                    onCommentUpdated={refreshComments}
+                    allComments={comments[post.id]}
+                    postId={post.id}
+                  />
+                ))}
             </div>
           )}
         </div>
