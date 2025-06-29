@@ -80,6 +80,10 @@ const StockSearch = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     setError('');
+    if (!profile || !profile.name || !profile.email) {
+      setError('Please create a profile to search for a stock.');
+      return;
+    }
     try {
       const res = await fetchStockQuote(query);
       if (res.data.o === 0 && res.data.c === 0) {
@@ -155,7 +159,7 @@ const StockSearch = () => {
         <div style={{ color: 'red', marginBottom: '1rem' }}>
           {error}
           <div style={{ color: '#b36b00', marginTop: '0.5rem', fontWeight: 500 }}>
-            Please wait and try again in a couple minutes.
+            
           </div>
         </div>
       )}

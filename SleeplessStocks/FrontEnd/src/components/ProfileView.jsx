@@ -28,9 +28,9 @@ const ProfileView = () => {
 
   return (
     <div style={viewContainer}>
-      <h2 style={viewTitle}>👤 Profile Info</h2>
+      <h2 style={{ ...viewTitle, textAlign: 'center' }}>👤 Profile Info</h2>
 
-      <div style={viewInfo}>
+      <div style={{ ...viewInfo, textAlign: 'center' }}>
         <p><strong>Name:</strong> {profile.name}</p>
         <p><strong>Email:</strong> {profile.email}</p>
         <p><strong>Bio:</strong> {profile.bio}</p>

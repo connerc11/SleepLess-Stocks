@@ -1,12 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState({ name: '', email: '', bio: '' });
+  const [profile, setProfile] = useState({ name: '', email: '', bio: '', brokerage: '' });
   const [stocks, setStocks] = useState([{ ticker: '', priceTarget: '' }]);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+        const res = await api.get('/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data && res.data.profile) {
+          setProfile({
+            name: res.data.profile.name || '',
+            email: res.data.profile.email || '',
+            bio: res.data.profile.bio || '',
+            brokerage: res.data.profile.brokerage || ''
+          });
+        }
+        if (res.data && Array.isArray(res.data.stocks) && res.data.stocks.length > 0) {
+          setStocks(res.data.stocks.map(s => ({
+            ticker: s.ticker || '',
+            priceTarget: s.priceTarget || ''
+          })));
+        }
+      } catch (err) {
+        // If unauthorized, redirect to login
+        if (err?.response?.status === 401) {
+          navigate('/login');
+        }
+      }
+    })();
+  }, [navigate]);
 
   const handleChange = e => setProfile({ ...profile, [e.target.name]: e.target.value });
   const handleStock = (idx, field, val) => {
