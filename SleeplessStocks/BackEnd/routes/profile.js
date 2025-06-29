@@ -1,28 +1,45 @@
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/auth');
+const UserProfile = require('../models/UserProfile');
 
-let userProfiles = {}; // in-memory
-
-router.post('/', authenticateToken, (req, res) => {
+// Save or update profile
+router.post('/', authenticateToken, async (req, res) => {
   const username = req.user.username;
   const { profile, stocks, favorites, searchedStocks } = req.body;
-  userProfiles[username] = {
-    profile,
-    stocks: stocks || (userProfiles[username] && userProfiles[username].stocks) || [],
-    favorites: favorites || (userProfiles[username] && userProfiles[username].favorites) || {},
-    searchedStocks: searchedStocks || (userProfiles[username] && userProfiles[username].searchedStocks) || [],
-  };
-  return res.status(201).json({ message: 'Profile saved' });
+  try {
+    const updated = await UserProfile.findOneAndUpdate(
+      { username },
+      {
+        username,
+        name: profile?.name || '',
+        email: profile?.email || '',
+        bio: profile?.bio || '',
+        brokerage: profile?.brokerage || '',
+        favorites: favorites || {},
+        stocks: stocks || [],
+        searchedStocks: searchedStocks || [],
+      },
+      { upsert: true, new: true }
+    );
+    return res.status(201).json({ message: 'Profile saved', profile: updated });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to save profile' });
+  }
 });
 
-router.get('/', authenticateToken, (req, res) => {
+// Get profile
+router.get('/', authenticateToken, async (req, res) => {
   const username = req.user.username;
-  const data = userProfiles[username];
-  if (!data) {
-    return res.status(404).json({ error: 'No profile found' });
+  try {
+    const profile = await UserProfile.findOne({ username });
+    if (!profile) {
+      return res.status(404).json({ error: 'No profile found' });
+    }
+    return res.json({ profile });
+  } catch (err) {
+    return res.status(500).json({ error: 'Failed to fetch profile' });
   }
-  return res.json(data);
 });
 
 module.exports = router;

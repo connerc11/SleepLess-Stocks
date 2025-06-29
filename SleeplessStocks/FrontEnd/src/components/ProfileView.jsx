@@ -24,7 +24,8 @@ const ProfileView = () => {
   if (loading) return <p style={{ textAlign: 'center' }}>Loading...</p>;
   if (error) return <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>;
 
-  const { profile, stocks } = data;
+  const profile = data?.profile || {};
+  const stocks = profile.stocks || [];
 
   return (
     <div style={viewContainer}>

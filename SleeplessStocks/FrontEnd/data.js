@@ -1,18 +1,18 @@
 const posts = [
   {
     id: '1',
-    title: 'Apple Stock Analysis',
+    title: 'Hims & Hers Health: Telehealth Growth',
     content:
-      'Apple trades at ~28x forward earnings with a $3T market cap. Analysts set a $215 avg price target (+12%). Services revenue hit $23.9B, now 26% of total sales. With over 2B devices, AI integration and Vision Pro are key catalysts for the next leg up.',
-    ticker: 'AAPL',
+      'HIMS trades with a $15 PT (+20%). Revenue grew 68% YoY, with 1.5M subscriptions and gross margin at 79%. Analysts like DTC growth, recurring revenue, and OTC expansion. Telehealth trends and brand loyalty fuel longer-term profitability potential.',
+    ticker: 'HIMS',
     sentiment: 'Bullish',
     metrics: {
-      priceTarget: '$215',
-      upside: '+12%',
-      peRatio: 28,
-      marketCap: '$3T',
-    },
+      priceTarget: '$15',
+      upside: '+20%',
+      revenueGrowth: '68% YoY',
+      subscriptions: '1.5M',
   },
+},
   {
     id: '2',
     title: 'Tesla Outlook',
@@ -54,17 +54,17 @@ const posts = [
     },
   },
   {
-    id: '5',
-    title: 'Upstart Holdings: AI Lending Future',
-    content:
-      'Upstart has a $26 avg price target (+30%). Despite credit headwinds, AI-powered underwriting drives efficiencies. Originations are recovering; analysts note potential in SMB and auto loans. Volatility remains high but upside is compelling long-term.',
-    ticker: 'UPST',
-    sentiment: 'Bullish',
-    metrics: {
-      priceTarget: '$26',
-      upside: '+30%',
-      creditQuality: 'Improving',
-    },
+  id: '5',
+  title: 'Capital One: Diversified Growth & Digital Edge',
+  content:
+    'Capital One is well-positioned with a $150 average price target (~20% upside). The company benefits from rising interest income, disciplined credit underwriting, and a growing digital banking presence. Analysts highlight its strong balance sheet and efficient tech-driven operations. Consumer credit risk remains a factor, but long-term fundamentals appear solid.',
+  ticker: 'COF',
+  sentiment: 'Neutral-to-Bullish',
+  metrics: {
+    priceTarget: '$150',
+    upside: '+20%',
+    creditQuality: 'Stable',
+  },
   },
   {
     id: '6',
@@ -80,34 +80,8 @@ const posts = [
       users: '12.5M MAUs',
     },
   },
-  {
-    id: '7',
-    title: 'Hims & Hers Health: Telehealth Growth',
-    content:
-      'HIMS trades with a $15 PT (+20%). Revenue grew 68% YoY, with 1.5M subscriptions and gross margin at 79%. Analysts like DTC growth, recurring revenue, and OTC expansion. Telehealth trends and brand loyalty fuel longer-term profitability potential.',
-    ticker: 'HIMS',
-    sentiment: 'Bullish',
-    metrics: {
-      priceTarget: '$15',
-      upside: '+20%',
-      revenueGrowth: '68% YoY',
-      subscriptions: '1.5M',
-    },
-  },
-  {
-    id: '8',
-    title: 'Capital One: Credit Powerhouse',
-    content:
-      'Capital One trades near a $150 PT (+12%). Credit card revenue remains strong, and digital adoption is up. CET1 ratio at 10.4% and NIM over 6%. Analysts expect consistent performance amid rising interest rates and stable loan demand.',
-    ticker: 'COF',
-    sentiment: 'Neutral',
-    metrics: {
-      priceTarget: '$150',
-      upside: '+12%',
-      cet1: '10.4%',
-      nim: '6.1%',
-    },
-  },
+
+
 ];
 
 export default posts;
