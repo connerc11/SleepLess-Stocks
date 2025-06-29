@@ -233,7 +233,7 @@ const Blog = ({ setToken }) => {
         marginTop: '2rem',
         opacity: 0.85,
       }}>
-        Made by Conner Cochrane! this is not financial advice but just my opinion 🙂
+        Made by Conner Cochrane! This is not financial advice but just my opinion 🙂
       </footer>
     </div>
   );
