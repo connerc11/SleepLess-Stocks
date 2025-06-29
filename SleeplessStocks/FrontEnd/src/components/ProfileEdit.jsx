@@ -32,11 +32,19 @@ const ProfileEdit = () => {
     }
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
       await api.post('/profile', { profile, stocks }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/profile');
     } catch (err) {
+      if (err?.response?.status === 401) {
+        navigate('/login');
+        return;
+      }
       console.error(err);
       setError('Failed to save profile');
     }
