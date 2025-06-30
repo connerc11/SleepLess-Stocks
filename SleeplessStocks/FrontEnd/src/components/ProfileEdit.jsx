@@ -101,6 +101,15 @@ const ProfileEdit = () => {
           <div key={i} style={stockRow}>
             <input placeholder="Ticker" value={s.ticker} onChange={e => handleStock(i,'ticker',e.target.value)} required style={{...input,flex:1}} />
             <input placeholder="Price Target" value={s.priceTarget} onChange={e => handleStock(i,'priceTarget',e.target.value)} required style={{...input,flex:1}} />
+            <button
+              type="button"
+              onClick={() => {
+                setStocks(stocks.filter((_, idx) => idx !== i));
+              }}
+              style={{ marginLeft: 8, background: '#ff5e5e', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.5rem 0.8rem', cursor: 'pointer', fontWeight: 600 }}
+            >
+              Remove
+            </button>
           </div>
         ))}
         <button type="button" onClick={addStock} style={addBtn}>+ Add Stock</button>
