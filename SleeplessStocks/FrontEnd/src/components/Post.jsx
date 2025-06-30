@@ -9,6 +9,12 @@ const Post = ({ id, title, content, ticker }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load liked state from localStorage
+    const stored = localStorage.getItem(`liked_post_${id}`);
+    if (stored === 'true') setLiked(true);
+  }, [id]);
+
+  useEffect(() => {
     if (!ticker) return;
 
     const fetchPrice = async () => {
@@ -27,7 +33,9 @@ const Post = ({ id, title, content, ticker }) => {
   }, [ticker]);
 
   const handleLike = () => {
-    setLiked(!liked);
+    const newLiked = !liked;
+    setLiked(newLiked);
+    localStorage.setItem(`liked_post_${id}`, newLiked);
   };
 
   const handleComment = () => {

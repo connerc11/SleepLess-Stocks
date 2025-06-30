@@ -98,9 +98,19 @@ const ProfileEdit = () => {
 
         <h3>Favorite Stocks 📈</h3>
         {stocks.map((s,i) => (
-          <div key={i} style={stockRow}>
+          <div key={i} style={{ ...stockRow, alignItems: 'center' }}>
             <input placeholder="Ticker" value={s.ticker} onChange={e => handleStock(i,'ticker',e.target.value)} required style={{...input,flex:1}} />
             <input placeholder="Price Target" value={s.priceTarget} onChange={e => handleStock(i,'priceTarget',e.target.value)} required style={{...input,flex:1}} />
+            <button
+              type="button"
+              onClick={() => {
+                setStocks(stocks.filter((_, idx) => idx !== i));
+              }}
+              style={{ marginLeft: 12, background: '#ff5e5e', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.5rem 0.8rem', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center' }}
+              aria-label="Remove favorite stock"
+            >
+              🗑️ Remove
+            </button>
           </div>
         ))}
         <button type="button" onClick={addStock} style={addBtn}>+ Add Stock</button>

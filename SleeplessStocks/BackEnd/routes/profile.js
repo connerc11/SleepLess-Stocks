@@ -6,7 +6,7 @@ const UserProfile = require('../models/UserProfile');
 // Save or update profile
 router.post('/', authenticateToken, async (req, res) => {
   const username = req.user.username;
-  const { profile, stocks, favorites, searchedStocks } = req.body;
+  const { profile, stocks, favorites, searchWatchlist } = req.body; // renamed
   try {
     const updated = await UserProfile.findOneAndUpdate(
       { username },
@@ -18,7 +18,7 @@ router.post('/', authenticateToken, async (req, res) => {
         brokerage: profile?.brokerage || '',
         favorites: favorites || {},
         stocks: stocks || [],
-        searchedStocks: searchedStocks || [],
+        searchWatchlist: searchWatchlist || [], // renamed
       },
       { upsert: true, new: true }
     );

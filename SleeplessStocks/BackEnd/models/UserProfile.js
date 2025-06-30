@@ -20,7 +20,7 @@ const UserProfileSchema = new mongoose.Schema({
       priceTarget: String
     }
   ],
-  searchedStocks: { type: Array, default: [] }
+  searchWatchlist: { type: Array, default: [] } // renamed from searchedStocks
 });
 
 module.exports = mongoose.model('UserProfile', UserProfileSchema);

@@ -39,7 +39,7 @@ const headerBtnStyle = {
 
 const StockSearch = () => {
   const [query, setQuery] = useState('');
-  const [searchedStocks, setSearchedStocks] = useState([]);
+  const [searchWatchlist, setSearchWatchlist] = useState([]);
   const [error, setError] = useState('');
   const [profile, setProfile] = useState(null);
   const [watchlist, setWatchlist] = useState([]);
@@ -51,8 +51,8 @@ const StockSearch = () => {
       try {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        setSearchedStocks(res.data.searchedStocks || []);
-        setWatchlist(res.data.stocks || []);
+        setSearchWatchlist(res.data.profile?.searchWatchlist || []);
+        setWatchlist(res.data.profile?.stocks || []);
       } catch {
         // No profile or not logged in
       }
@@ -60,9 +60,9 @@ const StockSearch = () => {
   }, []);
 
   // Save stocks to backend
-  const saveStocks = async (newStocks) => {
+  const saveSearchWatchlist = async (newStocks) => {
     try {
-      await api.post('/profile', { profile: profile || {}, searchedStocks: newStocks, stocks: watchlist });
+      await api.post('/profile', { profile: profile || {}, searchWatchlist: newStocks, stocks: watchlist });
     } catch (err) {
       setError('Failed to save stocks');
     }
@@ -71,7 +71,7 @@ const StockSearch = () => {
   // Save watchlist to backend
   const saveWatchlist = async (newList) => {
     try {
-      await api.post('/profile', { profile: profile || {}, stocks: newList, searchedStocks });
+      await api.post('/profile', { profile: profile || {}, stocks: newList, searchWatchlist });
     } catch (err) {
       setError('Failed to save watchlist');
     }
@@ -95,10 +95,10 @@ const StockSearch = () => {
         open: res.data.o,
         close: res.data.c,
       };
-      const updated = [newStock, ...searchedStocks.filter(s => s.ticker !== newStock.ticker)];
-      setSearchedStocks(updated);
+      const updated = [newStock, ...searchWatchlist.filter(s => s.ticker !== newStock.ticker)];
+      setSearchWatchlist(updated);
       setQuery('');
-      await saveStocks(updated);
+      await saveSearchWatchlist(updated);
     } catch (err) {
       setError('Failed to fetch stock data');
     }
@@ -163,7 +163,7 @@ const StockSearch = () => {
           </div>
         </div>
       )}
-      {searchedStocks.map((stock, idx) => {
+      {searchWatchlist.map((stock, idx) => {
         const inWatchlist = watchlist.some(s => s.ticker === stock.ticker);
         return (
           <div key={idx} style={{ background: '#f8f8f8', borderRadius: '10px', padding: '1.5rem', textAlign: 'center', marginBottom: '1rem' }}>

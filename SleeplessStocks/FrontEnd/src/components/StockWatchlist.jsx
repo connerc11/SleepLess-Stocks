@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
@@ -24,21 +24,87 @@ const titleStyle = {
   fontSize: '2rem',
   fontWeight: 'bold',
 };
+const sectionTitleStyle = {
+  fontSize: '1.25rem',
+  fontWeight: 'bold',
+  margin: '2rem 0 0.5rem 0',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+};
+const emptyStateStyle = {
+  color: '#bbb',
+  textAlign: 'center',
+  margin: '1.5rem 0',
+  fontSize: '1.1rem',
+};
+const cardStyle = {
+  background: '#f8f8f8',
+  borderRadius: '10px',
+  padding: '1.2rem',
+  textAlign: 'center',
+  marginBottom: '1rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+  transition: 'box-shadow 0.2s',
+};
+const cardStyleSearch = {
+  ...cardStyle,
+  background: '#fffbe6',
+  border: '1px solid #ffe58f',
+};
+const btnDanger = {
+  marginLeft: '1rem',
+  background: '#ff4d4f',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '6px',
+  padding: '0.5rem 1.1rem',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  transition: 'background 0.2s',
+};
+const btnDangerHover = {
+  background: '#d9363e',
+};
+const backBtnStyle = {
+  padding: '0.6rem 1.2rem',
+  border: 'none',
+  borderRadius: '8px',
+  background: 'linear-gradient(90deg, #1890ff 0%, #70c1ff 100%)',
+  color: '#fff',
+  fontWeight: 'bold',
+  fontSize: '1rem',
+  boxShadow: '0 2px 8px rgba(24,144,255,0.10)',
+  cursor: 'pointer',
+  transition: 'background 0.2s, box-shadow 0.2s',
+  outline: 'none',
+  marginLeft: 'auto',
+};
 
 const StockWatchlist = () => {
   const [query, setQuery] = useState('');
   const [watchlist, setWatchlist] = useState([]);
+  const [searchWatchlist, setSearchWatchlist] = useState([]); // new section
   const [error, setError] = useState('');
   const [profile, setProfile] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalIdx, setModalIdx] = useState(null);
+  const [modalValue, setModalValue] = useState('');
+  const [modalForSearch, setModalForSearch] = useState(false);
+  const inputRef = useRef();
   const navigate = useNavigate();
 
-  // Load watchlist from backend on mount
+  // Load watchlist and searchWatchlist from backend on mount
   useEffect(() => {
     (async () => {
       try {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        setWatchlist(res.data.stocks || []);
+        setWatchlist(res.data.profile?.stocks || []);
+        setSearchWatchlist(res.data.profile?.searchWatchlist || []);
       } catch {
         // No profile or not logged in
       }
@@ -48,19 +114,29 @@ const StockWatchlist = () => {
   // Save watchlist to backend
   const saveWatchlist = async (newList) => {
     try {
-      await api.post('/profile', { profile: profile || {}, stocks: newList });
+      await api.post('/profile', { profile: profile || {}, stocks: newList, searchWatchlist });
     } catch (err) {
       setError('Failed to save watchlist');
     }
   };
 
+  // Save searchWatchlist to backend
+  const saveSearchWatchlist = async (newList) => {
+    try {
+      await api.post('/profile', { profile: profile || {}, stocks: watchlist, searchWatchlist: newList });
+    } catch (err) {
+      setError('Failed to save search watchlist');
+    }
+  };
+
+  // Add to searchWatchlist (new section)
   const handleAdd = (ticker) => {
-    if (watchlist.some(s => s.ticker === ticker.toUpperCase())) return;
-    const newStock = { ticker: ticker.toUpperCase(), price: (Math.random() * 1000).toFixed(2) };
-    const updated = [newStock, ...watchlist];
-    setWatchlist(updated);
+    if (searchWatchlist.some(s => s.ticker === ticker.toUpperCase())) return;
+    const newStock = { ticker: ticker.toUpperCase() };
+    const updated = [newStock, ...searchWatchlist];
+    setSearchWatchlist(updated);
     setQuery('');
-    saveWatchlist(updated);
+    saveSearchWatchlist(updated);
   };
 
   const handleSearch = (e) => {
@@ -69,10 +145,56 @@ const StockWatchlist = () => {
     handleAdd(query);
   };
 
+  // Remove from main watchlist
   const handleRemove = (ticker) => {
     const updated = watchlist.filter(s => s.ticker !== ticker);
     setWatchlist(updated);
     saveWatchlist(updated);
+  };
+
+  // Remove from searchWatchlist
+  const handleRemoveSearch = (ticker) => {
+    const updated = searchWatchlist.filter(s => s.ticker !== ticker);
+    setSearchWatchlist(updated);
+    saveSearchWatchlist(updated);
+  };
+
+  // Open modal for price target
+  const openPriceTargetModal = (idx) => {
+    setModalIdx(idx);
+    setModalValue('');
+    setModalOpen(true);
+    setModalForSearch(false);
+    setTimeout(() => inputRef.current && inputRef.current.focus(), 100);
+  };
+
+  // Open modal for price target for searchWatchlist
+  const openSearchPriceTargetModal = (idx) => {
+    setModalIdx(idx);
+    setModalValue('');
+    setModalOpen(true);
+    setModalForSearch(true);
+    setTimeout(() => inputRef.current && inputRef.current.focus(), 100);
+  };
+
+  // Save price target from modal
+  const savePriceTarget = () => {
+    if (!modalValue || isNaN(modalValue) || Number(modalValue) <= 0) return;
+    if (modalForSearch) {
+      const updated = [...searchWatchlist];
+      updated[modalIdx] = { ...updated[modalIdx], priceTarget: parseFloat(modalValue).toFixed(2) };
+      setSearchWatchlist(updated);
+      saveSearchWatchlist(updated);
+    } else {
+      const updated = [...watchlist];
+      updated[modalIdx] = { ...updated[modalIdx], priceTarget: parseFloat(modalValue).toFixed(2) };
+      setWatchlist(updated);
+      saveWatchlist(updated);
+    }
+    setModalOpen(false);
+    setModalIdx(null);
+    setModalValue('');
+    setModalForSearch(false);
   };
 
   return (
@@ -81,7 +203,15 @@ const StockWatchlist = () => {
         <h2 style={titleStyle}>
           {profile && profile.name ? `${profile.name}'s Watchlist` : '📈 Stock Watchlist'}
         </h2>
-        <button onClick={() => navigate('/blog')} className="btn-outline">← Back to Blog</button>
+        <button
+          onClick={() => navigate('/blog')}
+          style={backBtnStyle}
+          className="btn-outline"
+          onMouseOver={e => e.currentTarget.style.background = '#40a9ff'}
+          onMouseOut={e => e.currentTarget.style.background = 'linear-gradient(90deg, #1890ff 0%, #70c1ff 100%)'}
+        >
+          ← Back to Blog
+        </button>
       </div>
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{ marginBottom: '0.5rem', color: '#555' }}>Recommended tickers:</div>
@@ -111,17 +241,145 @@ const StockWatchlist = () => {
       </div>
       {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
       <div>
-        {watchlist.length === 0 && <div style={{ color: '#888', textAlign: 'center' }}>No stocks in your watchlist yet.</div>}
+        <div style={sectionTitleStyle}><span role="img" aria-label="star">⭐</span> Main Watchlist</div>
+        {watchlist.length === 0 && null}
         {watchlist.map((stock, idx) => (
-          <div key={idx} style={{ background: '#f8f8f8', borderRadius: '10px', padding: '1.2rem', textAlign: 'center', marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div key={idx} style={cardStyle} className="watchlist-card">
             <div>
               <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1890ff' }}>{stock.ticker}</div>
-              <div style={{ fontSize: '1rem', marginTop: '0.3rem' }}>Price: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stock.price}</span></div>
+              {stock.priceTarget ? (
+                <div style={{ fontSize: '1rem', marginTop: '0.3rem' }}>Price Target: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stock.priceTarget}</span></div>
+              ) : (
+                <button
+                  onClick={() => openPriceTargetModal(idx)}
+                  style={{
+                    marginTop: '0.3rem',
+                    background: '#fff',
+                    color: '#27ae60',
+                    border: '1px solid #27ae60',
+                    borderRadius: '6px',
+                    padding: '0.3rem 0.9rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
+                >
+                  + Add Price Target
+                </button>
+              )}
             </div>
-            <button onClick={() => handleRemove(stock.ticker)} className="btn-danger" style={{ marginLeft: '1rem' }}>Remove</button>
+            <button onClick={() => handleRemove(stock.ticker)} className="btn-danger" style={btnDanger}>Remove</button>
           </div>
         ))}
       </div>
+      {/* Modal for price target */}
+      {modalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.25)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: '2rem 2.5rem', boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+            minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem', position: 'relative'
+          }}>
+            <div style={{ fontWeight: 600, fontSize: '1.15rem', color: '#1890ff' }}>Set Price Target for <span style={{ color: '#222' }}>{watchlist[modalIdx]?.ticker}</span></div>
+            <input
+              ref={inputRef}
+              type="number"
+              min="0"
+              step="0.01"
+              value={modalValue}
+              onChange={e => setModalValue(e.target.value)}
+              placeholder="Enter price target (e.g. 150.00)"
+              style={{
+                padding: '0.7rem 1.2rem', borderRadius: 8, border: '1px solid #1890ff', fontSize: '1.1rem', width: '100%',
+                outline: modalValue && (isNaN(modalValue) || Number(modalValue) <= 0) ? '2px solid #ff4d4f' : 'none'
+              }}
+              onKeyDown={e => { if (e.key === 'Enter') savePriceTarget(); }}
+            />
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <button
+                onClick={savePriceTarget}
+                style={{ background: '#1890ff', color: '#fff', border: 'none', borderRadius: 6, padding: '0.6rem 1.5rem', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', opacity: (!modalValue || isNaN(modalValue) || Number(modalValue) <= 0) ? 0.6 : 1 }}
+                disabled={!modalValue || isNaN(modalValue) || Number(modalValue) <= 0}
+              >Save</button>
+              <button
+                onClick={() => { setModalOpen(false); setModalIdx(null); setModalValue(''); }}
+                style={{ background: '#fff', color: '#888', border: '1px solid #bbb', borderRadius: 6, padding: '0.6rem 1.5rem', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}
+              >Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div>
+        {/* Only show empty state if there are no searchWatchlist stocks */}
+        {searchWatchlist.length === 0 && null}
+        {searchWatchlist.map((stock, idx) => (
+          <div key={idx} style={cardStyleSearch} className="searchwatchlist-card">
+            <div>
+              <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#faad14' }}>{stock.ticker}</div>
+              {stock.priceTarget ? (
+                <div style={{ fontSize: '1rem', marginTop: '0.3rem' }}>Price Target: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stock.priceTarget}</span></div>
+              ) : (
+                <button
+                  onClick={() => openSearchPriceTargetModal(idx)}
+                  style={{
+                    marginTop: '0.3rem',
+                    background: '#fff',
+                    color: '#27ae60',
+                    border: '1px solid #27ae60',
+                    borderRadius: '6px',
+                    padding: '0.3rem 0.9rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                  }}
+                >
+                  + Add Price Target
+                </button>
+              )}
+            </div>
+            <button onClick={() => handleRemoveSearch(stock.ticker)} className="btn-danger" style={btnDanger}>Remove</button>
+          </div>
+        ))}
+      </div>
+      {/* Modal for price target for searchWatchlist */}
+      {modalOpen && modalIdx !== null && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.25)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: 12, padding: '2rem 2.5rem', boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+            minWidth: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.2rem', position: 'relative'
+          }}>
+            <div style={{ fontWeight: 600, fontSize: '1.15rem', color: '#1890ff' }}>Set Price Target for <span style={{ color: '#222' }}>{modalForSearch ? searchWatchlist[modalIdx]?.ticker : watchlist[modalIdx]?.ticker}</span></div>
+            <input
+              ref={inputRef}
+              type="number"
+              min="0"
+              step="0.01"
+              value={modalValue}
+              onChange={e => setModalValue(e.target.value)}
+              placeholder="Enter price target (e.g. 150.00)"
+              style={{
+                padding: '0.7rem 1.2rem', borderRadius: 8, border: '1px solid #1890ff', fontSize: '1.1rem', width: '100%',
+                outline: modalValue && (isNaN(modalValue) || Number(modalValue) <= 0) ? '2px solid #ff4d4f' : 'none'
+              }}
+              onKeyDown={e => { if (e.key === 'Enter') savePriceTarget(); }}
+            />
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <button
+                onClick={savePriceTarget}
+                style={{ background: '#1890ff', color: '#fff', border: 'none', borderRadius: 6, padding: '0.6rem 1.5rem', fontWeight: 600, fontSize: '1rem', cursor: 'pointer', opacity: (!modalValue || isNaN(modalValue) || Number(modalValue) <= 0) ? 0.6 : 1 }}
+                disabled={!modalValue || isNaN(modalValue) || Number(modalValue) <= 0}
+              >Save</button>
+              <button
+                onClick={() => { setModalOpen(false); setModalIdx(null); setModalValue(''); setModalForSearch(false); }}
+                style={{ background: '#fff', color: '#888', border: '1px solid #bbb', borderRadius: 6, padding: '0.6rem 1.5rem', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}
+              >Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
       <footer style={{
         width: '100%',
         textAlign: 'center',
