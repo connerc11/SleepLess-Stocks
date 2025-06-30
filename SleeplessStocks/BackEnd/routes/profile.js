@@ -3,25 +3,23 @@ const router = express.Router();
 const authenticateToken = require('../middleware/auth');
 const UserProfile = require('../models/UserProfile');
 
-// Save or update profile or watchlist
+// Save or update profile
 router.post('/', authenticateToken, async (req, res) => {
   const username = req.user.username;
-  const { profile, stocks, favorites, searchedStocks, watchlist } = req.body;
+  const { profile, stocks, favorites, searchedStocks } = req.body;
   try {
-    const updateFields = {
-      username,
-      name: profile?.name || '',
-      email: profile?.email || '',
-      bio: profile?.bio || '',
-      brokerage: profile?.brokerage || '',
-      favorites: favorites || {},
-      stocks: stocks || [],
-      searchedStocks: searchedStocks || [],
-    };
-    if (watchlist) updateFields.watchlist = watchlist;
     const updated = await UserProfile.findOneAndUpdate(
       { username },
-      updateFields,
+      {
+        username,
+        name: profile?.name || '',
+        email: profile?.email || '',
+        bio: profile?.bio || '',
+        brokerage: profile?.brokerage || '',
+        favorites: favorites || {},
+        stocks: stocks || [],
+        searchedStocks: searchedStocks || [],
+      },
       { upsert: true, new: true }
     );
     return res.status(201).json({ message: 'Profile saved', profile: updated });
@@ -38,18 +36,7 @@ router.get('/', authenticateToken, async (req, res) => {
     if (!profile) {
       return res.status(404).json({ error: 'No profile found' });
     }
-    return res.json({
-      profile: {
-        name: profile.name,
-        email: profile.email,
-        bio: profile.bio,
-        brokerage: profile.brokerage,
-        favorites: profile.favorites,
-        stocks: profile.stocks,
-        watchlist: profile.watchlist || [],
-        searchedStocks: profile.searchedStocks || [],
-      }
-    });
+    return res.json({ profile });
   } catch (err) {
     return res.status(500).json({ error: 'Failed to fetch profile' });
   }

@@ -14,10 +14,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 dotenv.config();
 const app = express();
 
-app.use(cors({
-  origin: '*', // TEMP: allow all origins for debugging CORS
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 app.use('/posts', postsRoute);
@@ -57,11 +54,6 @@ async function runMongo() {
   }
 }
 runMongo().catch(console.dir);
-
-// Debug route for CORS
-app.get('/cors-test', (req, res) => {
-  res.json({ message: 'CORS is working!' });
-});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

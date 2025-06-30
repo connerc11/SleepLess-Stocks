@@ -46,10 +46,10 @@ const Post = ({ id, title, content, ticker }) => {
       )}
 
       <div style={{ display: 'flex', gap: '1rem' }}>
-        <button type="button" onClick={handleLike} style={{ fontSize: '1.2rem' }}>
+        <button onClick={handleLike} style={{ fontSize: '1.2rem' }}>
           {liked ? '💖' : '🤍'} Like
         </button>
-        <button type="button" onClick={handleComment}>💬 Comment</button>
+        <button onClick={handleComment}>💬 Comment</button>
       </div>
     </div>
   );

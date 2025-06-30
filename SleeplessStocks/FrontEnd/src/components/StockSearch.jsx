@@ -52,7 +52,7 @@ const StockSearch = () => {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
         setSearchedStocks(res.data.searchedStocks || []);
-        setWatchlist(res.data.watchlist || []); // Use watchlist, not stocks
+        setWatchlist(res.data.stocks || []);
       } catch {
         // No profile or not logged in
       }
@@ -62,34 +62,16 @@ const StockSearch = () => {
   // Save stocks to backend
   const saveStocks = async (newStocks) => {
     try {
-      await api.post('/profile', { profile: profile || {}, searchedStocks: newStocks, stocks: profile.stocks || [], watchlist });
+      await api.post('/profile', { profile: profile || {}, searchedStocks: newStocks, stocks: watchlist });
     } catch (err) {
       setError('Failed to save stocks');
     }
   };
 
-  // Save watchlist to backend (now using a separate 'watchlist' field)
+  // Save watchlist to backend
   const saveWatchlist = async (newList) => {
     try {
-      // Fetch current favorites and profile stocks to preserve them
-      let favorites = {};
-      let stocks = [];
-      let profileFields = profile || {};
-      let searchedStocksLatest = searchedStocks;
-      try {
-        const res = await api.get('/profile');
-        favorites = res.data.favorites || {};
-        stocks = res.data.stocks || [];
-        profileFields = res.data.profile || profileFields;
-        searchedStocksLatest = res.data.searchedStocks || searchedStocksLatest;
-      } catch {}
-      await api.post('/profile', {
-        profile: profileFields,
-        watchlist: newList,
-        favorites,
-        stocks,
-        searchedStocks: searchedStocksLatest
-      });
+      await api.post('/profile', { profile: profile || {}, stocks: newList, searchedStocks });
     } catch (err) {
       setError('Failed to save watchlist');
     }
@@ -125,12 +107,10 @@ const StockSearch = () => {
   // Add to watchlist from search result
   const handleAddToWatchlist = async (stock) => {
     if (watchlist.some(s => s.ticker === stock.ticker)) return;
-    // Add with priceTarget as empty string for compatibility
-    const newStock = { ticker: stock.ticker, price: stock.close, priceTarget: '' };
+    const newStock = { ticker: stock.ticker, price: stock.close };
     const updated = [newStock, ...watchlist];
     setWatchlist(updated);
     await saveWatchlist(updated);
-    // Remain on search page
   };
 
   return (

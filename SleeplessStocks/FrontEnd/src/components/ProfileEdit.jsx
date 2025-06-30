@@ -27,7 +27,6 @@ const ProfileEdit = () => {
             brokerage: res.data.profile.brokerage || ''
           });
         }
-        // Only use res.data.stocks for profile favorites
         if (res.data && Array.isArray(res.data.stocks) && res.data.stocks.length > 0) {
           setStocks(res.data.stocks.map(s => ({
             ticker: s.ticker || '',
@@ -71,16 +70,7 @@ const ProfileEdit = () => {
         navigate('/login');
         return;
       }
-      // Fetch current favorites to preserve them
-      let favorites = {};
-      try {
-        const res = await api.get('/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        favorites = res.data.favorites || {};
-      } catch {}
-      // Only update 'stocks' (profile favorites), not 'watchlist'
-      await api.post('/profile', { profile, stocks, favorites }, {
+      await api.post('/profile', { profile, stocks }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/profile');
@@ -111,15 +101,6 @@ const ProfileEdit = () => {
           <div key={i} style={stockRow}>
             <input placeholder="Ticker" value={s.ticker} onChange={e => handleStock(i,'ticker',e.target.value)} required style={{...input,flex:1}} />
             <input placeholder="Price Target" value={s.priceTarget} onChange={e => handleStock(i,'priceTarget',e.target.value)} required style={{...input,flex:1}} />
-            <button
-              type="button"
-              onClick={() => {
-                setStocks(stocks.filter((_, idx) => idx !== i));
-              }}
-              style={{ marginLeft: 8, background: '#ff5e5e', color: '#fff', border: 'none', borderRadius: '6px', padding: '0.5rem 0.8rem', cursor: 'pointer', fontWeight: 600 }}
-            >
-              Remove
-            </button>
           </div>
         ))}
         <button type="button" onClick={addStock} style={addBtn}>+ Add Stock</button>

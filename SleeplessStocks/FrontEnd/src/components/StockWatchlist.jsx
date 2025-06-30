@@ -38,7 +38,7 @@ const StockWatchlist = () => {
       try {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        setWatchlist(res.data.watchlist || []); // Use watchlist, not stocks
+        setWatchlist(res.data.stocks || []);
       } catch {
         // No profile or not logged in
       }
@@ -48,7 +48,7 @@ const StockWatchlist = () => {
   // Save watchlist to backend
   const saveWatchlist = async (newList) => {
     try {
-      await api.post('/profile', { profile: profile || {}, watchlist: newList });
+      await api.post('/profile', { profile: profile || {}, stocks: newList });
     } catch (err) {
       setError('Failed to save watchlist');
     }
