@@ -14,7 +14,10 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://sleep-less-stocks.vercel.app',
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/posts', postsRoute);
