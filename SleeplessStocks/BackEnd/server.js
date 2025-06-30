@@ -14,8 +14,12 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 dotenv.config();
 const app = express();
 
+const allowedOrigins = [
+  'https://sleep-less-stocks.vercel.app',
+  'https://sleep-less-stocks-ewz7644r7-connerc11s-projects.vercel.app'
+];
 app.use(cors({
-  origin: 'https://sleep-less-stocks.vercel.app',
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
