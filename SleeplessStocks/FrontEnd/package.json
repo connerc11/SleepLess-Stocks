@@ -13,7 +13,6 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "postinstall": "chmod +x node_modules/.bin/vite",
     "build": "vite build",
     "preview": "vite preview"
   },
