@@ -12,7 +12,15 @@ const UserProfileSchema = new mongoose.Schema({
       ticker: String,
       priceTarget: String
     }
-  ]
+  ],
+  watchlist: [
+    {
+      ticker: String,
+      price: String,
+      priceTarget: String
+    }
+  ],
+  searchedStocks: { type: Array, default: [] }
 });
 
 module.exports = mongoose.model('UserProfile', UserProfileSchema);

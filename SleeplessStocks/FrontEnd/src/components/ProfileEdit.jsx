@@ -27,6 +27,7 @@ const ProfileEdit = () => {
             brokerage: res.data.profile.brokerage || ''
           });
         }
+        // Only use res.data.stocks for profile favorites
         if (res.data && Array.isArray(res.data.stocks) && res.data.stocks.length > 0) {
           setStocks(res.data.stocks.map(s => ({
             ticker: s.ticker || '',
@@ -70,7 +71,16 @@ const ProfileEdit = () => {
         navigate('/login');
         return;
       }
-      await api.post('/profile', { profile, stocks }, {
+      // Fetch current favorites to preserve them
+      let favorites = {};
+      try {
+        const res = await api.get('/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        favorites = res.data.favorites || {};
+      } catch {}
+      // Only update 'stocks' (profile favorites), not 'watchlist'
+      await api.post('/profile', { profile, stocks, favorites }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/profile');

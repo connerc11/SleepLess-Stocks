@@ -201,11 +201,10 @@ const Blog = ({ setToken }) => {
                 Current/Close: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stockQuotes[post.ticker].c}</span>
               </div>
             )}
-            <p style={postAuthor}>By <strong>{post.author}</strong></p>
-
             <div style={buttonRow}>
+              <p style={postAuthor}> Written By: Conner</p>
               <button
-                onClick={() => toggleFavorite(post.id)}
+                onClick={e => { e.preventDefault(); toggleFavorite(post.id); }}
                 style={{
                   ...favoriteButton,
                   color: favorites[post.id] ? '#ff5e5e' : '#ccc',
@@ -216,7 +215,7 @@ const Blog = ({ setToken }) => {
               </button>
 
               <button
-                onClick={() => handleComments(post.id)}
+                onClick={e => { e.preventDefault(); handleComments(post.id); }}
                 style={commentButton}
                 aria-label="Go to Comments"
               >
