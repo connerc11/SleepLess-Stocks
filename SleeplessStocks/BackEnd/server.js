@@ -14,12 +14,8 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 dotenv.config();
 const app = express();
 
-const allowedOrigins = [
-  'https://sleep-less-stocks.vercel.app',
-  'https://sleep-less-stocks-ewz7644r7-connerc11s-projects.vercel.app'
-];
 app.use(cors({
-  origin: allowedOrigins,
+  origin: '*', // TEMP: allow all origins for debugging CORS
   credentials: true
 }));
 app.use(express.json());
@@ -61,6 +57,11 @@ async function runMongo() {
   }
 }
 runMongo().catch(console.dir);
+
+// Debug route for CORS
+app.get('/cors-test', (req, res) => {
+  res.json({ message: 'CORS is working!' });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
