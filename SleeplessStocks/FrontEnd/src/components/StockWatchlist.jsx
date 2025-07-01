@@ -85,16 +85,6 @@ const backBtnStyle = {
 };
 
 
-const removeDuplicate = (arr) => {
-  const seen = new Set();
-  return arr.filter(item => {
-    if (seen.has(item.ticker)) return false;
-    seen.add(item.ticker);
-    return true;
-  });
-}
-
-
 
 const StockWatchlist = () => {
   const [query, setQuery] = useState('');
@@ -109,14 +99,26 @@ const StockWatchlist = () => {
   const inputRef = useRef();
   const navigate = useNavigate();
 
+
+  
+
   // Load watchlist and searchWatchlist from backend on mount
   useEffect(() => {
     (async () => {
       try {
+      
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        setWatchlist(removeDuplicate(res.data.profile?.stocks || []));
-        setSearchWatchlist(res.data.profile?.searchWatchlist || []);
+        const searchList = res.data.profile?.searchWatchlist || [];
+        const mainList = res.data.profile?.stocks || [];    
+        
+        const filteredMainList = mainList.filter(
+          s => !searchList.some(search => search.ticker === s.ticker)
+
+        );
+        setWatchlist(filteredMainList);
+        setSearchWatchlist(searchList);
+
       } catch {
         // No profile or not logged in
       }
@@ -125,11 +127,10 @@ const StockWatchlist = () => {
 
   // Save watchlist to backend
   const saveWatchlist = async (newList) => {
-  const deduped = removeDuplicate(newList);
+ 
 
     try {
-      await api.post('/profile', { profile: profile || {}, stocks: deduped, searchWatchlist });
-      setWatchlist(deduped);
+      await api.post('/profile', { profile: profile || {}, stocks: newList, searchWatchlist });
     } catch (err) {
       setError('Failed to save watchlist');
     }
@@ -168,6 +169,7 @@ const StockWatchlist = () => {
   // Remove from main watchlist
   const handleRemove = (ticker) => {
     const updated = watchlist.filter(s => s.ticker !== ticker);
+    setWatchlist(updated);
     saveWatchlist(updated);
   };
 
