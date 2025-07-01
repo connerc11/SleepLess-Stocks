@@ -1,7 +1,7 @@
 {
-  "name": "sleepless-stocks",
+  "name": "sleepless-stocks-frontend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Frontend for Sleepless Stocks (Vite + React)",
   "main": "index.js",
   "scripts": {
     "dev": "vite",

@@ -131,7 +131,12 @@ const StockWatchlist = () => {
 
   // Add to searchWatchlist (new section)
   const handleAdd = (ticker) => {
-    if (searchWatchlist.some(s => s.ticker === ticker.toUpperCase())) return;
+    const exists = searchWatchlist.some(s => s.ticker === ticker.toUpperCase());
+    if (exists) {
+      setError(`Ticker ${ticker.toUpperCase()} is already on your watchlist!`);
+      setTimeout(() => setError(''), 2500);
+      return;
+    }
     const newStock = { ticker: ticker.toUpperCase() };
     const updated = [newStock, ...searchWatchlist];
     setSearchWatchlist(updated);

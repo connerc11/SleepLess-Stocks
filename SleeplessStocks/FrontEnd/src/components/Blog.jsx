@@ -201,7 +201,7 @@ const Blog = ({ setToken }) => {
                 Current/Close: <span style={{ color: '#27ae60', fontWeight: 'bold' }}>${stockQuotes[post.ticker].c}</span>
               </div>
             )}
-            <p style={postAuthor}>By <strong>{post.author}</strong></p>
+            <p> Created By Conner!</p>
 
             <div style={buttonRow}>
               <button

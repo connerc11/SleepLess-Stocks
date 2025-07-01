@@ -69,10 +69,21 @@ function CommentItem({ comment, currentUser, onCommentUpdated, allComments, post
     : [];
 
   return (
-    <div className="bg-gray-100 p-2 rounded text-sm" style={{ marginBottom: '0.5rem', marginLeft: comment.parentId ? 24 : 0 }}>
-      <span style={{ fontWeight: 'bold', color: '#333' }}>
-        {comment.author ? comment.author : 'Unknown Author'}:
-      </span>{' '}
+    <div
+      className="bg-gray-100 p-2 rounded text-sm"
+      style={{
+        marginBottom: '0.5rem',
+        marginLeft: comment.parentId ? 32 : 0,
+        borderLeft: comment.parentId ? '3px solid #b5e0b7' : 'none',
+        background: comment.parentId ? '#f6fff8' : '#f0f4ff',
+        boxShadow: comment.parentId ? '0 1px 4px rgba(34,197,94,0.07)' : '0 2px 8px rgba(24,144,255,0.04)',
+        padding: comment.parentId ? '0.7rem 1rem 0.7rem 1.2rem' : '1rem',
+        transition: 'background 0.2s',
+      }}
+    >
+      <span style={{ fontWeight: 'bold', color: '#1890ff', fontSize: '1.05em' }}>
+        {comment.author ? comment.author : 'Unknown Author'}
+      </span>
       {editing ? (
         <>
           <input
@@ -84,7 +95,7 @@ function CommentItem({ comment, currentUser, onCommentUpdated, allComments, post
           <button onClick={() => { setEditing(false); setEditText(comment.text); }} style={{ color: '#888', border: 'none', background: 'none', cursor: 'pointer' }}>Cancel</button>
         </>
       ) : (
-        <span>"{comment.text}"</span>
+        <span style={{ marginLeft: 8, color: '#222', fontSize: '1.01em' }}>&ldquo;{comment.text}&rdquo;</span>
       )}
       {isAuthor && !editing && (
         <>
@@ -96,18 +107,18 @@ function CommentItem({ comment, currentUser, onCommentUpdated, allComments, post
         <button onClick={() => setReplying(r => !r)} style={{ marginLeft: 10, color: '#52c41a', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Reply</button>
       )}
       {replying && (
-        <div style={{ marginTop: 6 }}>
+        <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
           <input
             value={replyText}
             onChange={e => setReplyText(e.target.value)}
             placeholder="Write a reply..."
             style={{ padding: '2px 6px', borderRadius: 4, border: '1px solid #bbb', fontSize: '0.95em', width: '70%' }}
           />
-          <button onClick={handleReply} style={{ marginLeft: 6, color: '#52c41a', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Send</button>
-          <button onClick={() => { setReplying(false); setReplyText(''); }} style={{ marginLeft: 4, color: '#888', border: 'none', background: 'none', cursor: 'pointer' }}>Cancel</button>
+          <button onClick={handleReply} style={{ color: '#52c41a', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>Send</button>
+          <button onClick={() => { setReplying(false); setReplyText(''); }} style={{ color: '#888', border: 'none', background: 'none', cursor: 'pointer' }}>Cancel</button>
         </div>
       )}
-      <button onClick={handleLike} style={{ marginLeft: 10, color: liked ? '#ff5e5e' : '#aaa', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}>
+      <button onClick={handleLike} style={{ marginLeft: 10, color: liked ? '#ff5e5e' : '#aaa', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '1.1em', verticalAlign: 'middle' }}>
         {liked ? '❤️' : '🤍'} Like
       </button>
       <span style={{ marginLeft: 4, color: '#888', fontWeight: 600 }}>{likes}</span>
