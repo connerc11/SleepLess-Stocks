@@ -84,7 +84,18 @@ const backBtnStyle = {
   marginLeft: 'auto',
 };
 
+const combineAndDedupeStocks = (arr1, arr2, arr3) => {
+  const seen = new Set();
+  const combined = [...(arr1 || []), ...(arr2 || []), ...(arr3 || [])];
+  return combined.filter(item => {
+    if (!item.ticker) return false;
+    const t = item.ticker.toUpperCase();
+    if (seen.has(t)) return false;
+    seen.add(t);
+    return true;
 
+  });
+}
 
 const StockWatchlist = () => {
   const [query, setQuery] = useState('');
@@ -100,24 +111,23 @@ const StockWatchlist = () => {
   const navigate = useNavigate();
 
 
-  
+
 
   // Load watchlist and searchWatchlist from backend on mount
   useEffect(() => {
     (async () => {
       try {
-      
+
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        const searchList = res.data.profile?.searchWatchlist || [];
-        const mainList = res.data.profile?.stocks || [];    
         
-        const filteredMainList = mainList.filter(
-          s => !searchList.some(search => search.ticker === s.ticker)
+        const stocks = res.data.profile?.stocks || [];
+        const watchList = res.data.profile?.searchWatchlist || [];
+        const searchWatchList = res.data.profile?.searchWatchList || [];
 
-        );
-        setWatchlist(filteredMainList);
-        setSearchWatchlist(searchList);
+        const dedupedWatchlist = combineAndDedupeStocks(stocks, watchList, searchWatchList);
+        setWatchlist(dedupedWatchlist);
+        setSearchWatchlist(searchWatchList.filter(s => dedupedWatchlist.some(d => d.ticker === s.ticker)));
 
       } catch {
         // No profile or not logged in
@@ -127,7 +137,7 @@ const StockWatchlist = () => {
 
   // Save watchlist to backend
   const saveWatchlist = async (newList) => {
- 
+
 
     try {
       await api.post('/profile', { profile: profile || {}, stocks: newList, searchWatchlist });
