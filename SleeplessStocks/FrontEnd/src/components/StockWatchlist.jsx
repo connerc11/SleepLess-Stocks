@@ -99,6 +99,7 @@ const combineAndDedupeStocks = (arr1, arr2, arr3) => {
 
 const StockWatchlist = () => {
   const [query, setQuery] = useState('');
+  const [stocks, setStocks] = useState([]);
   const [watchlist, setWatchlist] = useState([]);
   const [searchWatchlist, setSearchWatchlist] = useState([]); // new section
   const [error, setError] = useState('');
@@ -124,7 +125,7 @@ const StockWatchlist = () => {
         const stocks = res.data.profile?.stocks || [];
         const watchList = res.data.profile?.searchWatchlist || [];
         const searchWatchList = res.data.profile?.searchWatchList || [];
-
+        setStocks(stocks);
         const dedupedWatchlist = combineAndDedupeStocks(stocks, watchList, searchWatchList);
         setWatchlist(dedupedWatchlist);
         setSearchWatchlist(searchWatchList.filter(s => dedupedWatchlist.some(d => d.ticker === s.ticker)));
