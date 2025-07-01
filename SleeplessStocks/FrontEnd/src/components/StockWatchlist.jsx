@@ -158,15 +158,17 @@ const StockWatchlist = () => {
   // Add to searchWatchlist (new section)
   const handleAdd = (ticker) => {
     const exists = searchWatchlist.some(s => s.ticker === ticker.toUpperCase());
-    if (exists) {
+    const exists2 = watchlist.some(s => s.ticker === ticker.toUpperCase());
+    const exist3 = stocks.some(s => s.ticker === ticker.toUpperCase());
+    if (exists || exists2 || exist3) {
       setError(`Ticker ${ticker.toUpperCase()} is already on your watchlist!`);
-      setTimeout(() => setError(''), 2500);
       return;
     }
     const newStock = { ticker: ticker.toUpperCase() };
     const updated = [newStock, ...searchWatchlist];
     setSearchWatchlist(updated);
     setQuery('');
+    setError('');
     saveSearchWatchlist(updated);
   };
 
