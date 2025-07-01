@@ -51,7 +51,6 @@ const StockSearch = () => {
       try {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        setSearchWatchlist(res.data.profile?.searchWatchlist || []);
         setWatchlist(res.data.profile?.stocks || []);
       } catch {
         // No profile or not logged in
