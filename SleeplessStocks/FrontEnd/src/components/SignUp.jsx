@@ -18,7 +18,7 @@ function SignUp() {
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
       setError('Username may already exist or invalid data.');
-      setTimeout(() => setError(''), 5000);
+      setTimeout(() => setError(''), 2500);
     }
 
   };
