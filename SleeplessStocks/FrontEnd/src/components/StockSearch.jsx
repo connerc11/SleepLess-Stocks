@@ -106,7 +106,11 @@ const StockSearch = () => {
 
   // Add to watchlist from search result
   const handleAddToWatchlist = async (stock) => {
-    if (watchlist.some(s => s.ticker === stock.ticker)) return;
+    if (watchlist.some(s => s.ticker === stock.ticker)) {
+       setError(`Ticker ${stock.ticker} is already on your watchlist!`);
+       return
+    }
+      
     const newStock = { ticker: stock.ticker, price: stock.close };
     const updated = [newStock, ...watchlist];
     setWatchlist(updated);
