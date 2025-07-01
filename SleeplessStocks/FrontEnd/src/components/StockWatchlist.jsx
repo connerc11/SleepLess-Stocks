@@ -84,6 +84,18 @@ const backBtnStyle = {
   marginLeft: 'auto',
 };
 
+
+const removeDuplicate = (arr) => {
+  const seen = new Set();
+  return arr.filter(item => {
+    if (seen.has(item.ticker)) return false;
+    seen.add(item.ticker);
+    return true;
+  });
+}
+
+
+
 const StockWatchlist = () => {
   const [query, setQuery] = useState('');
   const [watchlist, setWatchlist] = useState([]);
@@ -103,7 +115,7 @@ const StockWatchlist = () => {
       try {
         const res = await api.get('/profile');
         setProfile(res.data.profile || {});
-        setWatchlist(res.data.profile?.stocks || []);
+        setWatchlist(removeDuplicate(res.data.profile?.stocks || []));
         setSearchWatchlist(res.data.profile?.searchWatchlist || []);
       } catch {
         // No profile or not logged in
@@ -113,8 +125,11 @@ const StockWatchlist = () => {
 
   // Save watchlist to backend
   const saveWatchlist = async (newList) => {
+  const deduped = removeDuplicate(newList);
+
     try {
-      await api.post('/profile', { profile: profile || {}, stocks: newList, searchWatchlist });
+      await api.post('/profile', { profile: profile || {}, stocks: deduped, searchWatchlist });
+      setWatchlist(deduped);
     } catch (err) {
       setError('Failed to save watchlist');
     }
@@ -153,7 +168,6 @@ const StockWatchlist = () => {
   // Remove from main watchlist
   const handleRemove = (ticker) => {
     const updated = watchlist.filter(s => s.ticker !== ticker);
-    setWatchlist(updated);
     saveWatchlist(updated);
   };
 
