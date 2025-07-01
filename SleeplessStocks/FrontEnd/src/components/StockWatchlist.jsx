@@ -181,14 +181,15 @@ const StockWatchlist = () => {
 
   // Remove from main watchlist
   const handleRemove = (ticker) => {
-    const updated = watchlist.filter(s => s.ticker !== ticker);
+    const updated = watchlist.filter(s => (s.ticker || '').toUpperCase() !== ticker.toUpperCase());
     setWatchlist(updated);
+    setStocks(stocks.filter(s => (s.ticker || '').toUpperCase() !== ticker.toUpperCase()));
     saveWatchlist(updated);
   };
 
   // Remove from searchWatchlist
   const handleRemoveSearch = (ticker) => {
-    const updated = searchWatchlist.filter(s => s.ticker !== ticker);
+    const updated = searchWatchlist.filter(s => (s.ticker || '').toUpperCase() !== ticker.toUpperCase());
     setSearchWatchlist(updated);
     saveSearchWatchlist(updated);
   };
